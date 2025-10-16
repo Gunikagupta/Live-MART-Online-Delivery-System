@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
+
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,6 +14,8 @@ public class User {
     private String name;
     private String email;
     private String password;
+    private String phone;
+    private String role;
 
     public User() {}
 
@@ -41,6 +44,18 @@ public class User {
     public void setPassword(String password) { 
         this.password = password; 
     }
+    public String getPhone() { 
+        return phone; 
+    }
+    public void setPhone(String phone) { 
+        this.phone = phone; 
+    }   
+    public String getRole() { 
+        return role; 
+    }       
+    public void setRole(String role) { 
+        this.role = role; 
+    }  
 }
 
 
