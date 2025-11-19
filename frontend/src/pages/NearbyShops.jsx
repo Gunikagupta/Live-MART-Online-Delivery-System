@@ -5,44 +5,50 @@ import { Link } from "react-router-dom";
 
 const NearbyShops = () => {
   const [shops, setShops] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [filters, setFilters] = useState({
     maxCost: "",
-    minStock: "",
-    minQty: "",
-    maxDistance: ""
+    minQuantity: "",
+    inStock: "",
+    distanceKm: ""
   });
 
-  useEffect(() => {
-    fetchNearbyShops();
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchNearbyShops = async () => {
+  // Fetch shops on load and whenever filters change
+  useEffect(() => {
+    fetchShopsFromBackend();
+  }, [filters]);
+
+  const fetchShopsFromBackend = async () => {
+    setIsLoading(true);
+
     try {
-      const res = await api.get("/shops/nearby");
+      const res = await api.get("/api/v1/shops/search", {
+        params: {
+          maxCost: filters.maxCost || undefined,
+          minQuantity: filters.minQuantity || undefined,
+          inStock: filters.inStock === "" ? undefined : filters.inStock,
+          userLat: 0,       // static for now (you can replace with geolocation)
+          userLon: 0,
+          distanceKm: filters.distanceKm || undefined
+        }
+      });
+
       setShops(res.data);
-      setFiltered(res.data);
     } catch (err) {
       console.error("Error fetching shops:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const applyFilters = () => {
-    let f = [...shops];
-
-    if (filters.maxCost)
-      f = f.filter(s => s.avgItemPrice <= parseFloat(filters.maxCost));
-
-    if (filters.minStock)
-      f = f.filter(s => s.totalStock >= parseInt(filters.minStock));
-
-    if (filters.minQty)
-      f = f.filter(s => s.totalQuantity >= parseInt(filters.minQty));
-
-    if (filters.maxDistance)
-      f = f.filter(s => s.distance <= parseFloat(filters.maxDistance));
-
-    setFiltered(f);
+  const clearFilters = () => {
+    setFilters({
+      maxCost: "",
+      minQuantity: "",
+      inStock: "",
+      distanceKm: ""
+    });
   };
 
   return (
@@ -51,38 +57,54 @@ const NearbyShops = () => {
 
       {/* Filters */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg shadow">
+        
         <input
           type="number"
           placeholder="Max Cost"
           className="input"
-          onChange={(e) => setFilters({ ...filters, maxCost: e.target.value })}
+          value={filters.maxCost}
+          onChange={(e) =>
+            setFilters({ ...filters, maxCost: e.target.value })
+          }
         />
-        <input
-          type="number"
-          placeholder="Min Stock"
-          className="input"
-          onChange={(e) => setFilters({ ...filters, minStock: e.target.value })}
-        />
+
         <input
           type="number"
           placeholder="Min Quantity"
           className="input"
-          onChange={(e) => setFilters({ ...filters, minQty: e.target.value })}
+          value={filters.minQuantity}
+          onChange={(e) =>
+            setFilters({ ...filters, minQuantity: e.target.value })
+          }
         />
+
         <input
           type="number"
           placeholder="Max Distance (km)"
           className="input"
+          value={filters.distanceKm}
           onChange={(e) =>
-            setFilters({ ...filters, maxDistance: e.target.value })
+            setFilters({ ...filters, distanceKm: e.target.value })
           }
         />
 
-        <button
-          onClick={applyFilters}
-          className="col-span-2 md:col-span-4 btn-primary"
+        <select
+          className="input"
+          value={filters.inStock}
+          onChange={(e) =>
+            setFilters({ ...filters, inStock: e.target.value })
+          }
         >
-          Apply Filters
+          <option value="">Stock (Any)</option>
+          <option value="true">In Stock</option>
+          <option value="false">Out of Stock</option>
+        </select>
+
+        <button
+          onClick={clearFilters}
+          className="col-span-2 md:col-span-4 btn-secondary bg-gray-200 text-gray-700 hover:bg-gray-300"
+        >
+          Clear Filters
         </button>
       </div>
 
@@ -90,17 +112,30 @@ const NearbyShops = () => {
         View on Map
       </Link>
 
-      {/* Shop List */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.map((shop) => (
-          <div key={shop.id} className="bg-white p-4 rounded shadow">
-            <h2 className="text-lg font-semibold">{shop.name}</h2>
-            <p>Distance: {shop.distance} km</p>
-            <p>Avg Cost: ₹{shop.avgItemPrice}</p>
-            <p>Total Stock: {shop.totalStock}</p>
-            <p>Total Quantity: {shop.totalQuantity}</p>
+      {/* Results Area */}
+      <div className="mt-6">
+        {isLoading ? (
+          <p className="mt-6 text-center text-xl text-gray-500">
+            ⏳ Loading nearby shops...
+          </p>
+        ) : shops.length === 0 ? (
+          <div className="mt-6 p-8 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded-lg">
+            <p className="font-bold">🛒 No Shops Found</p>
+            <p>Try clearing or adjusting your filters to see more results.</p>
           </div>
-        ))}
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {shops.map((shop) => (
+              <div key={shop.id} className="bg-white p-4 rounded shadow">
+                <h2 className="text-lg font-semibold">{shop.name}</h2>
+                <p>Distance: {shop.distance} km</p>
+                <p>Avg Cost: ₹{shop.avgItemPrice}</p>
+                <p>Total Stock: {shop.totalStock}</p>
+                <p>Total Quantity: {shop.totalQuantity}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -12,8 +12,19 @@ public class Item {
     private String name;
     private String imageUrl;
     private double price;
-    private int stock;
+    private int stock; // Existing stock field
+
+    // This field is used by the search repository logic
+    @Column(name = "stock_quantity") 
+    private int stockQuantity; 
+
     private LocalDate availableDate;
+
+    // --- Module 3 Fields ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shop_id") 
+    private Shop shop; // <-- NEW Shop relationship
+    // -----------------------
 
     @ManyToOne
     @JoinColumn(name="category_id")
@@ -46,4 +57,18 @@ public class Item {
     public void setRetailer(Retailer retailer) { this.retailer = retailer; }
     public Retailer getWholesalerSource() { return wholesalerSource; }
     public void setWholesalerSource(Retailer wholesalerSource) { this.wholesalerSource = wholesalerSource; }
+    
+    // --- New Methods for Module 3 (FIXES COMPILATION) ---
+    public Shop getShop() { 
+        return shop; 
+    }
+    public void setShop(Shop shop) { 
+        this.shop = shop; 
+    }
+    public int getStockQuantity() { 
+        return stockQuantity; 
+    }
+    public void setStockQuantity(int stockQuantity) { 
+        this.stockQuantity = stockQuantity; 
+    }
 }
