@@ -18,6 +18,9 @@ import SearchItemsWithFilters from "./pages/SearchItemsWithFilters";
 import NearbyShops from "./pages/NearbyShops";
 import NearbyShopsMap from "./pages/NearbyShopsMap";
 
+import PlaceOrderForm from "./components/PlaceOrderForm";
+import OrderHistory from "./components/OrderHistory";
+
 function App() {
   return (
     <Router>
@@ -46,6 +49,9 @@ function App() {
         {/* Nearby Shops */}
         <Route path="/shops/nearby" element={<NearbyShops />} />
         <Route path="/shops/map" element={<NearbyShopsMap />} />
+
+        <Route path="/orders/create" element={<PlaceOrderForm />} />
+        <Route path="/orders/history" element={<OrderHistory />} />
 
       </Routes>
     </Router>
