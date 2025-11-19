@@ -14,73 +14,91 @@ export default function CategoryGrid() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-gray-50 py-12 px-6">
 
-      {/* Title */}
-      <h1 className="text-4xl font-extrabold mb-6 text-gray-900 text-center">
-        Shop by Category
+      {/* PAGE TITLE */}
+      <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-12 select-none">
+        <span className="bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 
+                         bg-clip-text text-transparent drop-shadow">
+          Shop by Category
+        </span>
       </h1>
 
-      {/* ⭐ Nearby Shops Button */}
-      <div className="text-center mb-12">
+      {/* NEARBY SHOPS BUTTON */}
+      <div className="text-center mb-10">
         <Link
           to="/shops/nearby"
-          className="bg-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg
-                     hover:bg-indigo-700 transition font-semibold text-lg"
+          className="inline-block px-8 py-3 text-lg font-semibold rounded-xl border border-pink-300 hover:border-pink-700 
+                     bg-white shadow-md hover:shadow-lg transition-all bg-clip-text text-transparent
+                     bg-gradient-to-r from-pink-900 via-red-700 to-pink-400"
         >
-          🔍 Find Nearby Shops
+          Find Nearby Shops →
         </Link>
       </div>
 
-      {/* Category Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 
-                      gap-8 max-w-7xl mx-auto">
+      {/* VERTICAL CATEGORY LIST */}
+      <div className="max-w-4xl mx-auto space-y-10">
         {categories.map((cat) => (
           <div
             key={cat.id}
             onClick={() => navigate(`/category/${cat.id}`)}
             className="
-              relative
-              bg-white 
-              rounded-2xl 
-              shadow-xl
-              overflow-hidden 
-              cursor-pointer
-              transform 
-              transition-all duration-300 ease-in-out
-              hover:scale-[1.03]
+              group
+              bg-white
+              rounded-3xl
+              border border-pink-200
+              hover:border-pink-600
+              shadow-lg
               hover:shadow-2xl
-              border border-transparent hover:border-indigo-400
+              cursor-pointer
+              transition-all duration-300
+              overflow-hidden
+              flex flex-col sm:flex-row
+              min-h-[240px]
             "
           >
-            <div className="w-full aspect-square overflow-hidden">
+
+            {/* CATEGORY IMAGE */}
+            <div className="w-full sm:w-1/3 h-60 sm:h-auto overflow-hidden">
               <img
                 src={cat.imageUrl || 'https://via.placeholder.com/400'}
                 alt={cat.name}
-                className="w-full h-full object-cover transition duration-300 hover:opacity-90"
+                className="
+                  w-full h-full object-cover 
+                  transition duration-300 
+                  group-hover:scale-105 
+                  group-hover:opacity-90
+                "
               />
             </div>
 
-            <div
-              className="
-                absolute 
-                inset-x-0 
-                bottom-0 
-                bg-white/95
-                backdrop-blur-sm 
-                py-3 px-4 
-                text-center 
-                font-bold 
-                text-gray-800 
-                text-lg 
-                rounded-t-lg
-                shadow-lg
-              "
-            >
-              <h2 className="text-lg font-bold text-indigo-700">
+            {/* TEXT AREA */}
+            <div className="flex flex-col justify-center items-start px-8 py-6 sm:w-2/3">
+              <h2 className="
+                text-3xl font-bold 
+                bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 
+                bg-clip-text text-transparent
+                mb-2
+              ">
                 {cat.name}
               </h2>
+
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Explore fresh and curated {cat.name.toLowerCase()} near you.
+              </p>
+
+              <button
+                className="
+                  mt-6 px-6 py-3 text-white text-sm font-semibold rounded-xl
+                  bg-gradient-to-r from-pink-900 via-red-700 to-pink-400
+                  shadow-md hover:shadow-lg 
+                  transition-all
+                "
+              >
+                Browse →
+              </button>
             </div>
+
           </div>
         ))}
       </div>
