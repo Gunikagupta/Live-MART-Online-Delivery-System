@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
-const GOOGLE_CLIENT_ID = "982520762305-0hqpoq34bmctonak7jn9no4n7djd48s4.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "321735826118-g4q03b6vsi1eoj7aeg97qcftj2dj44j7.apps.googleusercontent.com";
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });

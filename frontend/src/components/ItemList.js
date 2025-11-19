@@ -16,9 +16,10 @@ export default function ItemList() {
   setIsLoading(true);
 
   // Fetch items
-  api.get(`/api/categories/${categoryId}/items`)
+  api.get(`/api/categories/${categoryId}`)
     .then((res) => {
-      setItems(res.data);
+      setItems(Array.isArray(res.data) ? res.data : []);
+
     })
     .catch((err) => {
       console.error("Error loading items:", err);
