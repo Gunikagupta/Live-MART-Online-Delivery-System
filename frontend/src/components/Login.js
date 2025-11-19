@@ -45,25 +45,45 @@ function Login() {
   };
 
   return (
-    // Full-screen centered layout with a subtle background color
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      
-      {/* Login Card Container - Modern, rounded, elevated look */}
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 sm:p-10 border border-gray-200">
-        
-        {/* Title */}
-        <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-4">
-          Welcome Back
+   <div className="min-h-screen flex items-center justify-center p-6 bg-white">
+  <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 sm:p-10 border border-gray-200 transition duration-300 hover:shadow-purple-300">
+    
+        {/* Brand Title */}
+        <div className="flex flex-col items-center mb-6">
+          <span className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 drop-shadow-md select-none cursor-default">
+  LiveMart
+</span>
+
+
+          <span className="mt-2 text-lg text-gray-600 font-semibold select-none cursor-default">
+            Online Delivery System
+          </span>
+          <img
+            src="namaste.jpg"
+            alt="Namaste"
+            className="w-40 h-40 object-contain mt-6 mb-1"
+            style={{ maxWidth: "200" }}
+          />
+        </div>
+        {/* End Brand Title */}
+
+        {/* Sign In Heading */}
+        <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-3">
+          नमस्ते
         </h1>
-        <p className="text-center text-gray-500 mb-8">
+
+        <p className="text-center text-gray-500 mb-10">
           Sign in to access your dashboard.
         </p>
 
-        {/* Form Submission */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="space-y-7">
           {/* Email Input */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Email Address
             </label>
             <input
@@ -74,14 +94,19 @@ function Login() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
               placeholder="you@example.com"
+              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                         placeholder-gray-400 transition duration-200"
             />
           </div>
 
           {/* Password Input */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Password
             </label>
             <input
@@ -92,52 +117,56 @@ function Login() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
               placeholder="********"
+              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                         placeholder-gray-400 transition duration-200"
             />
           </div>
 
-          {/* Login Button - Primary Call to Action */}
+          {/* Login Button */}
           <button
-            type="submit"
-            className="w-full flex justify-center py-3 px-4 rounded-lg shadow-md text-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200"
-          >
-            Login
-          </button>
+  type="submit"
+  className="w-full py-3 rounded-xl shadow-lg text-lg font-semibold text-white
+    bg-gradient-to-br from-pink-900 via-red-700 to-pink-500
+    hover:from-pink-800 hover:via-red-600 hover:to-pink-400
+    focus:outline-none focus:ring-4 focus:ring-offset-1 focus:ring-pink-700
+    transition duration-300 ease-in-out"
+>
+  Login
+</button>
+
         </form>
 
         {/* Separator */}
-        <div className="flex items-center my-6">
+        <div className="flex items-center my-8">
           <div className="flex-grow border-t border-gray-300"></div>
-          <span className="flex-shrink mx-4 text-gray-400 font-medium text-sm">OR</span>
+          <span className="mx-4 text-gray-400 font-semibold text-sm select-none">OR</span>
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
 
-        {/* Google Sign-in Provider */}
+        {/* Google OAuth */}
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-          <div className="w-full">
-            {/* The GoogleLogin component is placed inside a div to control its width */}
+          <div className="w-full flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleLoginSuccess}
               onError={() => alert("Google login failed")}
-              // You can use a shape prop for a different look if desired
-              // shape="pill" 
-              // theme="outline"
-              size="large" // Set a large size for prominence
+              size="large"
             />
           </div>
         </GoogleOAuthProvider>
 
         {/* Create Account Link */}
-        <div className="mt-8 text-center text-sm">
+        <div className="mt-10 text-center text-sm">
           <p className="font-medium text-gray-600">
-            New user? 
+            New user?{" "}
             <Link
-              to="/register"
-              className="text-indigo-600 hover:text-indigo-500 ml-1 font-semibold transition duration-150 focus:outline-none"
-            >
-              Create an account
-            </Link>
+  to="/register"
+  className="bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 bg-clip-text text-transparent font-semibold transition duration-150 focus:outline-none"
+>
+  Create an account
+</Link>
+
           </p>
         </div>
       </div>

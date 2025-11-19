@@ -13,29 +13,30 @@ export default function ItemList() {
 
   // --- 1. Fetch Items for the Category ---
   useEffect(() => {
-    setIsLoading(true);
-    // Fetch items
-    api.get(`/api/dashboard/categories/${categoryId}/items`)
-      .then((res) => {
-        setItems(res.data);
-      })
-      .catch((err) => {
-        console.error("Error loading items:", err);
-        setItems([]);
-      });
-      
-    // Fetch Category Name
-    api.get(`/api/dashboard/categories/${categoryId}`) 
-      .then((res) => {
-        setCategoryName(res.data.name || "Items"); 
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error loading category name:", err);
-        setCategoryName("Items");
-        setIsLoading(false);
-      });
-  }, [categoryId]);
+  setIsLoading(true);
+
+  // Fetch items
+  api.get(`/api/categories/${categoryId}/items`)
+    .then((res) => {
+      setItems(res.data);
+    })
+    .catch((err) => {
+      console.error("Error loading items:", err);
+      setItems([]);
+    });
+    
+  // Fetch Category Name
+  api.get(`/api/categories/${categoryId}`)
+    .then((res) => {
+      setCategoryName(res.data.name || "Items");
+      setIsLoading(false);
+    })
+    .catch((err) => {
+      console.error("Error loading category name:", err);
+      setCategoryName("Items");
+      setIsLoading(false);
+    });
+}, [categoryId]);
 
 
   if (isLoading) {
