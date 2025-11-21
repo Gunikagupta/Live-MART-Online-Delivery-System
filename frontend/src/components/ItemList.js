@@ -62,11 +62,9 @@ export default function ItemList() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       {/* HEADER */}
       <header className="w-full bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
         <div className="max-w-[1600px] mx-auto px-8 py-4 grid grid-cols-3 items-center">
-
           {/* LEFT — Logo */}
           <div
             className="text-3xl font-extrabold bg-gradient-to-r from-rose-900 via-rose-700 to-pink-400
@@ -95,10 +93,6 @@ export default function ItemList() {
               Orders
             </button>
 
-            <button onClick={() => navigate("/feedback")} className="hover:text-rose-600 transition">
-              Feedback
-            </button>
-
             <button onClick={() => navigate("/cart")} className="hover:text-rose-600 transition relative">
               🛒 Cart
             </button>
@@ -112,20 +106,19 @@ export default function ItemList() {
                            hover:opacity-90 transition"
               >
                 <svg xmlns="http://www.w3.org/2000/svg"
-                  fill="none" viewBox="0 0 24 24"
-                  strokeWidth="1.8" stroke="currentColor"
-                  className="w-5 h-5">
+                     fill="none" viewBox="0 0 24 24"
+                     strokeWidth="1.8" stroke="currentColor"
+                     className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round"
-                    d="M5.121 17.804A8 8 0 1118.878 6.196 8 8 0 015.12 17.804z" />
+                        d="M5.121 17.804A8 8 0 1118.878 6.196 8 8 0 015.12 17.804z" />
                   <path strokeLinecap="round" strokeLinejoin="round"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 Account
               </button>
 
               {showMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg border rounded-xl py-2 z-50">
-
                   <button
                     onClick={() => {
                       setShowMenu(false);
@@ -157,7 +150,6 @@ export default function ItemList() {
                   >
                     Logout
                   </button>
-
                 </div>
               )}
             </div>
@@ -166,63 +158,75 @@ export default function ItemList() {
       </header>
 
       {/* PAGE CONTENT */}
-      <div className="px-8 py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      <div className="px-8 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        
+        {items.map((item) => {
+  // Generate a random rating from 1 to 5 for dummy stars display
+  const dummyRating = Math.floor(Math.random() * 5) + 1;
 
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl p-4 shadow hover:shadow-xl border"
-            >
-              <img
-                src={item.imageUrl}
-                alt={item.name}
-                className="h-48 w-full object-cover rounded-lg"
-              />
+  return (
+    <div key={item.id} className="bg-white rounded-xl p-4 shadow hover:shadow-xl border cursor-pointer">
+      <img
+        src={item.imageUrl}
+        alt={item.name}
+        className="h-48 w-full object-cover rounded-lg"
+      />
 
-              <h2 className="text-xl font-bold mt-3">{item.name}</h2>
-              <p className="text-2xl font-extrabold text-pink-600">₹{item.price}</p>
+      <h2 className="text-xl font-bold mt-3">{item.name}</h2>
+      <p className="text-2xl font-extrabold text-pink-600">₹{item.price}</p>
 
-              <span
-                className={`text-xs px-3 py-1 mt-2 rounded-full inline-block ${
-                  item.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                }`}
-              >
-                {item.stock > 0 ? `In Stock (${item.stock})` : "Out of Stock"}
-              </span>
+      <span
+        className={`text-xs px-3 py-1 mt-2 rounded-full inline-block ${
+          item.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+        }`}
+      >
+        {item.stock > 0 ? `In Stock (${item.stock})` : "Out of Stock"}
+      </span>
 
-              {item.stock > 0 && (
-                <>
-                  <div
-                    className="mt-4 flex items-center justify-between"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button onClick={() => decreaseQty(item.id)} className="px-3 py-1 bg-gray-200 rounded-lg">
-                      –
-                    </button>
-                    <span className="px-4 py-1 bg-gray-100 rounded border">
-                      {quantities[item.id] || 1}
-                    </span>
-                    <button onClick={() => increaseQty(item.id)} className="px-3 py-1 bg-gray-200 rounded-lg">
-                      +
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart(item, quantities[item.id]);
-                    }}
-                    className="mt-3 w-full py-2 bg-gradient-to-r from-pink-600 to-red-500 text-white rounded-xl font-semibold"
-                  >
-                    Add to Cart
-                  </button>
-                </>
-              )}
-            </div>
+      {/* Dummy star rating display */}
+      <div className="flex items-center mt-3 gap-2 select-none">
+        <div className="text-yellow-400 font-bold text-sm">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span key={i}>{i < dummyRating ? "★" : "☆"}</span>
           ))}
-
         </div>
+
+        {/* Small "Leave Feedback" link */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/feedback/${item.id}`);
+          }}
+          className="text-sm text-pink-600 underline hover:text-pink-800 ml-2"
+        >
+          Leave Feedback
+        </button>
+      </div>
+
+      {/* Existing quantity controls and Add to Cart button here */}
+      {item.stock > 0 && (
+        <>
+          <div className="mt-4 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => decreaseQty(item.id)} className="px-3 py-1 bg-gray-200 rounded-lg">–</button>
+            <span className="px-4 py-1 bg-gray-100 rounded border">{quantities[item.id] || 1}</span>
+            <button onClick={() => increaseQty(item.id)} className="px-3 py-1 bg-gray-200 rounded-lg">+</button>
+          </div>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(item, quantities[item.id]);
+            }}
+            className="mt-3 w-full py-2 bg-gradient-to-r from-pink-600 to-red-500 text-white rounded-xl font-semibold"
+          >
+            Add to Cart
+          </button>
+        </>
+      )}
+    </div>
+  );
+})}
+
       </div>
     </div>
   );
