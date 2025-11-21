@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import Navbar from "./Navbar";
 import { useCart } from "../CartContext";
 import { useNavigate } from "react-router-dom";
+import api from "../api/apiClient";
 
 export default function Checkout() {
-  const { cart } = useCart();
+  const { cart, clearCart } = useCart();
   const navigate = useNavigate();
 
   const [address, setAddress] = useState("");
@@ -13,65 +14,62 @@ export default function Checkout() {
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const placeOrder = () => {
-    if (!address.trim()) {
-      alert("Please enter your address.");
-      return;
-    }
-    navigate("/orders");
+  const placeOrder = async () => {
+  if (!address.trim()) {
+    alert("Please enter your address.");
+    return;
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) {
+    alert("User not logged in");
+    return;
+  }
+
+  const orderPayload = {
+    user: { id: user.id },
+    orderItems: cart.map((item) => ({
+      item: { id: item.id },
+      quantity: item.quantity
+    })),
+    deliveryAddress: address,
+    status: "PLACED",
+    offlineOrder: false,
+    offlineOrderDate: schedule ? schedule : null
   };
 
+  console.log("Sending:", orderPayload);
+
+  try {
+    await api.post("/api/orders/place", orderPayload);
+    navigate("/orders");
+  } catch (err) {
+    console.error("Order failed:", err);
+    alert("Order placement failed. Check console.");
+  }
+};
+
+
+
   return (
-    <div
-      className="
-        min-h-screen 
-        bg-gray-50
-        relative 
-        overflow-hidden
-      "
-    >
-      {/* 🔹 Subtle Pattern Background (clean & premium) */}
-      <div
-        className="
-          absolute inset-0 
-          bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.6)_0%,_rgba(230,230,230,0.4)_40%,_rgba(240,240,240,0.7)_100%)] 
-          opacity-70
-          pointer-events-none
-        "
-      />
-
-      {/* 🔹 Faint dotted pattern overlay */}
-      <div
-        className="
-          absolute inset-0 
-          bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22 viewBox=%220 0 4 4%22%3E%3Ccircle cx=%221%22 cy=%221%22 r=%220.5%22 fill=%22%23e0e0e0%22 /%3E%3C/svg%3E')]
-          opacity-20
-          pointer-events-none
-        "
-      />
-
-      {/* NAVBAR */}
+    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
       <Navbar />
 
       <div className="relative z-10 max-w-6xl mx-auto py-10 px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
         
-        {/* LEFT SIDE – FORM */}
-        <div className="md:col-span-2 bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-200">
+        {/* LEFT – FORM */}
+        <div className="md:col-span-2 bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
           <h1 className="text-4xl font-extrabold mb-6 text-gray-800">Checkout</h1>
 
-          {/* Delivery Address */}
           <label className="block font-semibold mb-2">Delivery Address</label>
           <textarea
             className="w-full border rounded-xl p-3 h-28 focus:ring-2 focus:ring-pink-400 outline-none"
             placeholder="Enter your full address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-          ></textarea>
+          />
 
-          {/* Schedule */}
-          <label className="block font-semibold mt-6 mb-2">
-            Schedule Delivery (optional)
-          </label>
+          <label className="block font-semibold mt-6 mb-2">Schedule Delivery (optional)</label>
           <input
             type="datetime-local"
             className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-pink-400 outline-none"
@@ -79,7 +77,6 @@ export default function Checkout() {
             onChange={(e) => setSchedule(e.target.value)}
           />
 
-          {/* Payment Method */}
           <label className="block font-semibold mt-6 mb-2">Payment Method</label>
 
           <div className="flex items-center gap-6">
@@ -112,8 +109,8 @@ export default function Checkout() {
           </button>
         </div>
 
-        {/* RIGHT SIDE – ORDER SUMMARY */}
-        <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-200">
+        {/* RIGHT – SUMMARY */}
+        <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
           <h2 className="text-2xl font-extrabold mb-4 text-gray-800">
             Order Summary
           </h2>
@@ -131,7 +128,6 @@ export default function Checkout() {
             <span>₹{total}</span>
           </div>
         </div>
-
       </div>
     </div>
   );

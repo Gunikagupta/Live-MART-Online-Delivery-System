@@ -14,7 +14,8 @@ import ItemDetail from "./components/ItemDetail";
 // Orders + Checkout
 import OrdersPage from "./pages/OrdersPage";
 import OrderDetails from "./pages/OrderDetails";
-import CheckoutWrapper from "./pages/CheckoutWrapper";
+import Checkout from "./pages/Checkout";
+
 import ProfilePage from "./pages/ProfilePage";
 
 
@@ -53,7 +54,7 @@ function App() {
         <Route path="/orders/:orderId" element={<OrderDetails />} />
         
         {/* Checkout */}
-        <Route path="/checkout" element={<CheckoutWrapper />} />
+<Route path="/checkout" element={<Checkout />} />
         <Route path="/profile" element={<ProfilePage />} />
         {/* Retailer Proxy Items */}
         <Route

@@ -1,152 +1,110 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-export default function Navbar({ showSearch = false }) {
-  const navigate = useNavigate();
+export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Dynamically show page title in center
+  const pageTitle = (() => {
+    if (location.pathname.startsWith("/cart")) return "Your Cart";
+    if (location.pathname.startsWith("/orders")) return "Orders";
+    if (location.pathname.startsWith("/feedback")) return "Feedback";
+    if (location.pathname.startsWith("/profile")) return "My Profile";
+    return ""; // Category Grid etc will show blank center
+  })();
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("cart");
+    navigate("/");
+  };
 
   return (
-    <header className="w-full sticky top-0 z-50">
-      {/* FULL-WIDTH MAROON → RED → PINK GRADIENT */}
-      <div
-        className="
-          w-full 
-          bg-gradient-to-r from-rose-900 via-red-600 to-pink-500
-          text-white
-        "
-      >
+    <header className="w-full bg-gradient-to-r from-rose-900 via-red-700 to-pink-500 text-white shadow-md sticky top-0 z-50">
+      <div className="max-w-[1500px] mx-auto px-10 py-4 grid grid-cols-3 items-center">
+
+        {/* LEFT — LiveMart */}
         <div
-          className="
-            max-w-7xl mx-auto 
-            py-3
-            flex items-center justify-between 
-            gap-8
-          "
+          className="text-3xl font-extrabold cursor-pointer tracking-tight"
+          onClick={() => navigate("/dashboard")}
         >
+          LiveMart
+        </div>
 
-          {/* LEFT: LOGO */}
-          <div
-            className="text-3xl font-extrabold cursor-pointer whitespace-nowrap"
-            onClick={() => navigate("/")}
+        {/* CENTER — Page Title */}
+        <div className="flex justify-center">
+          <h2 className="text-xl font-semibold tracking-wide select-none">
+            {pageTitle}
+          </h2>
+        </div>
+
+        {/* RIGHT — Menu */}
+        <div className="flex justify-end items-center gap-10 text-white text-lg font-medium">
+
+          <button
+            onClick={() => navigate("/orders")}
+            className="hover:text-gray-200 transition"
           >
-            LiveMart
-          </div>
+            Orders
+          </button>
 
-          {/* CENTER: SEARCH BAR — ONLY ON CATEGORY PAGE */}
-          {showSearch && (
-            <div className="flex-1 flex justify-center">
-              <input
-                type="text"
-                placeholder="Search for items, shops, categories..."
-                className="
-                  w-full max-w-xl
-                  border border-white/40 
-                  bg-white/20 
-                  rounded-full 
-                  px-5 py-2.5 
-                  text-white
-                  placeholder-white/80
-                  shadow 
-                  focus:outline-none focus:ring-2 focus:ring-white/70
-                "
-              />
-            </div>
-          )}
+          <button
+            onClick={() => navigate("/feedback")}
+            className="hover:text-gray-200 transition"
+          >
+            Feedback
+          </button>
 
-          {/* RIGHT MENU */}
-          <div className="flex items-center gap-8 text-lg font-semibold whitespace-nowrap">
-
+          {/* ACCOUNT DROPDOWN */}
+          <div className="relative">
             <button
-              onClick={() => navigate("/cart")}
-              className="hover:text-yellow-200 transition"
+              onClick={() => setOpen(prev => !prev)}
+              className="flex items-center gap-2 px-5 py-2 bg-white/20 backdrop-blur-md 
+                         rounded-full shadow hover:bg-white/30 transition"
             >
-              Your Cart
+              <span>⚪</span> Account
             </button>
 
-            <button
-              onClick={() => navigate("/orders")}
-              className="hover:text-yellow-200 transition"
-            >
-              Orders
-            </button>
+            {open && (
+              <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 shadow-lg border rounded-xl py-2 z-50">
 
-            <button
-              onClick={() => navigate("/feedback")}
-              className="hover:text-yellow-200 transition"
-            >
-              Feedback
-            </button>
-
-            {/* ACCOUNT DROPDOWN */}
-            <div className="relative">
-              <button
-                onClick={() => setOpen(!open)}
-                className="
-                  px-5 py-2 
-                  bg-white/30 
-                  backdrop-blur-sm 
-                  rounded-full 
-                  shadow 
-                  hover:bg-white/40 
-                  flex items-center gap-2 
-                  transition
-                "
-              >
-                <div className="w-3 h-3 bg-white rounded-full"></div>
-                Account
-              </button>
-
-              {open && (
-                <div
-                  className="
-                    absolute right-0 mt-2 
-                    w-48 
-                    bg-white text-black 
-                    shadow-lg border rounded-xl 
-                    py-2 
-                    z-50
-                  "
+                <button
+                  onClick={() => { navigate("/profile"); setOpen(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
-                  <button
-                    onClick={() => { navigate("/login"); setOpen(false); }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                  >
-                    Login
-                  </button>
+                  Profile
+                </button>
 
-                  <button
-                    onClick={() => { navigate("/register"); setOpen(false); }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                  >
-                    Register
-                  </button>
+                <button
+                  onClick={() => { navigate("/login"); setOpen(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  Login
+                </button>
 
-                  <hr className="my-2" />
+                <button
+                  onClick={() => { navigate("/register"); setOpen(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  Register
+                </button>
 
-                  <button
-                    onClick={() => { navigate("/profile"); setOpen(false); }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                  >
-                    Profile
-                  </button>
+                <hr className="my-2" />
 
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem("user");
-                      localStorage.removeItem("cart");
-                      setOpen(false);
-                      navigate("/login");
-                    }}
-                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
+                <button
+                  onClick={() => { logout(); setOpen(false); }}
+                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
+
       </div>
     </header>
   );
