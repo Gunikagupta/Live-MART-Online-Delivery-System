@@ -61,7 +61,7 @@ function Register() {
     try {
       const res = await axios.post("http://localhost:8080/api/auth/register", formData);
       alert(res.data);
-      navigate("/login"); // Navigate to login page after successful registration
+      navigate("/dashboard"); // Navigate to login page after successful registration
     } catch (error) {
       alert("Registration failed. Check backend or DB connection.");
     }
