@@ -1,5 +1,6 @@
 package com.livemart.backend.controller;
 
+import com.livemart.backend.dto.OrderResponseDTO;
 import com.livemart.backend.model.Order;
 import com.livemart.backend.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,42 +24,49 @@ public class OrderController {
     public ResponseEntity<?> placeOrder(@RequestBody Order order) {
         try {
             Order savedOrder = orderService.placeOrder(order);
-            // Optionally, trigger calendar invites/notifications asynchronously here
-            return ResponseEntity.ok(savedOrder);
+            OrderResponseDTO dto = orderService.convertToDTO(savedOrder);
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Order placement failed: " + e.getMessage());
         }
     }
 
     /**
-     * Get all orders for a user by user ID.
+     * Get all orders for a user.
      */
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Order>> getOrdersByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<OrderResponseDTO>> getOrdersByUser(@PathVariable Long userId) {
         List<Order> orders = orderService.getOrdersByUser(userId);
-        return ResponseEntity.ok(orders);
+        List<OrderResponseDTO> dtos = orders.stream()
+                .map(orderService::convertToDTO)
+                .toList();
+        return ResponseEntity.ok(dtos);
     }
 
     /**
-     * Update status of an order by order ID.
+     * Update order status.
      */
     @PutMapping("/{orderId}/status")
-    public ResponseEntity<?> updateOrderStatus(@PathVariable Long orderId, @RequestParam String status) {
+    public ResponseEntity<?> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam String status
+    ) {
         try {
             Order updatedOrder = orderService.updateOrderStatus(orderId, status);
-            return ResponseEntity.ok(updatedOrder);
+            return ResponseEntity.ok(orderService.convertToDTO(updatedOrder));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body("Failed to update order status: " + e.getMessage());
         }
     }
 
     /**
-     * Get order details by order ID.
+     * Get order by ID.
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderById(@PathVariable Long orderId) {
         Optional<Order> order = orderService.getOrderById(orderId);
-        return order.map(ResponseEntity::ok)
+        return order
+                .map(o -> ResponseEntity.ok(orderService.convertToDTO(o)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
-}
+    }
 }

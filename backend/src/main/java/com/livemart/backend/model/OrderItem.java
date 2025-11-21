@@ -1,5 +1,7 @@
 package com.livemart.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -9,10 +11,10 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
-
+@ManyToOne
+@JoinColumn(name = "order_id")
+@JsonBackReference   // <-- ADD THIS
+private Order order;
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;

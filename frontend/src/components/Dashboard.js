@@ -18,7 +18,7 @@ function Dashboard() {
   // --- Utility Function (Placeholder for Logout) ---
   const handleLogout = () => {
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/");
   };
 
   return (
