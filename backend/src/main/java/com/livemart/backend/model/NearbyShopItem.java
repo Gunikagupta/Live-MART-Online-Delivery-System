@@ -1,10 +1,21 @@
 package com.livemart.backend.model;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-@Data
-@EqualsAndHashCode(callSuper = true) // If you use Lombok, this is necessary to inherit fields
 public class NearbyShopItem extends ShopItem {
-    private Double distanceKm; // New field for location filtering
+    private double distanceKm;
+
+    public NearbyShopItem() {
+        super();
+    }
+
+    public NearbyShopItem(String shopName, String itemName, java.math.BigDecimal price, Integer stockQuantity, String category, double distanceKm) {
+        super(shopName, itemName, price, stockQuantity, category);
+        this.distanceKm = distanceKm;
+    }
+
+    public double getDistanceKm() {
+        return distanceKm;
+    }
+    public void setDistanceKm(double distanceKm) {
+        this.distanceKm = distanceKm;
+    }
 }
