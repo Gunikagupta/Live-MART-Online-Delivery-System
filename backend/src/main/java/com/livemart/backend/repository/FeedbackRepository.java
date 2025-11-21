@@ -1,0 +1,9 @@
+package com.livemart.backend.repository;
+
+import com.livemart.backend.model.Feedback;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
+    List<Feedback> findByItemId(Long itemId);
+}

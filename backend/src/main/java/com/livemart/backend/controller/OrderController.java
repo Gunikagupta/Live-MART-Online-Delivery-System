@@ -6,6 +6,8 @@ import com.livemart.backend.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.livemart.backend.service.OrderStatusPublisher;
+import com.livemart.backend.service.NotificationService;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +17,17 @@ import java.util.Optional;
 public class OrderController {
 
     @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
+    private final OrderStatusPublisher publisher;
+    private final NotificationService notificationService;
 
+    public OrderController(OrderService orderService,
+        OrderStatusPublisher publisher,
+        NotificationService notificationService) {
+this.orderService = orderService;
+this.publisher = publisher;
+this.notificationService = notificationService;
+}
     /**
      * Place a new order.
      */
@@ -47,6 +58,7 @@ public class OrderController {
      * Update order status.
      */
     @PutMapping("/{orderId}/status")
+<<<<<<< Updated upstream
     public ResponseEntity<?> updateOrderStatus(
             @PathVariable Long orderId,
             @RequestParam String status
@@ -56,7 +68,24 @@ public class OrderController {
             return ResponseEntity.ok(orderService.convertToDTO(updatedOrder));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body("Failed to update order status: " + e.getMessage());
+=======
+    public ResponseEntity<Order> updateOrderStatus(
+            @PathVariable Long orderId, @RequestParam String status) {
+        Order order = orderService.updateOrderStatus(orderId, status);
+        publisher.sendOrderStatusUpdate(order);
+
+        if ("DELIVERED".equalsIgnoreCase(status)) {
+            String msg = "Order #" + orderId + " was delivered.";
+            notificationService.sendSMS(order.getUser().getPhone(), msg);
+            notificationService.sendEmailWithCalendarInvite(
+                order.getUser().getEmail(),
+                "Order Delivered",
+                "Your order #" + orderId + " has been delivered successfully.",
+                null
+            );
+>>>>>>> Stashed changes
         }
+        return ResponseEntity.ok(order);
     }
 
     /**
