@@ -4,7 +4,7 @@ import api from "../api/apiClient";
 
 export default function CategoryGrid() {
   const [categories, setCategories] = useState([]);
-  const [open, setOpen] = useState(false); // <-- DROPDOWN STATE
+  const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -18,13 +18,12 @@ export default function CategoryGrid() {
   return (
     <>
       {/* NAVBAR */}
-      <header className="w-full bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
-        <div className="max-w-[1600px] mx-auto px-8 py-4 grid grid-cols-3 items-center">
-
+      <header className="w-full bg-white shadow-sm sticky top-0 z-50 border-b border-pink-100">
+        <div className="max-w-[1600px] mx-auto px-6 sm:px-12 py-4 grid grid-cols-3 items-center">
           {/* LEFT – LOGO */}
           <div
-            className="text-3xl font-extrabold bg-gradient-to-r from-rose-900 via-rose-700 to-pink-400 
-                       bg-clip-text text-transparent cursor-pointer tracking-tight"
+            className="text-3xl font-extrabold bg-gradient-to-r from-pink-900 via-red-700 to-pink-400
+                       bg-clip-text text-transparent cursor-pointer tracking-tight select-none"
             onClick={() => navigate("/")}
           >
             LiveMart
@@ -35,162 +34,183 @@ export default function CategoryGrid() {
             <input
               type="text"
               placeholder="Search for items, shops, categories..."
-              className="w-full max-w-xl border border-gray-300 rounded-full px-5 py-2.5
-                         shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
+              className="w-full max-w-xl border border-pink-200 rounded-full px-6 py-3
+                         shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 transition"
             />
           </div>
 
           {/* RIGHT – MENU */}
-          <div className="flex justify-end items-center gap-10 text-gray-700 font-medium text-lg">
-
-            <button onClick={() => navigate("/")} className="hover:text-rose-600 transition">
+          <div className="flex justify-end items-center gap-8 text-gray-700 font-semibold text-lg">
+            <button onClick={() => navigate("/")} className="hover:text-pink-600 transition" aria-label="Categories">
               Categories
             </button>
-
-            <button onClick={() => navigate("/orders")} className="hover:text-rose-600 transition">
+            <button onClick={() => navigate("/orders")} className="hover:text-pink-600 transition" aria-label="Orders">
               Orders
             </button>
-
-            <button onClick={() => navigate("/feedback")} className="hover:text-rose-600 transition">
+            <button onClick={() => navigate("/feedback")} className="hover:text-pink-600 transition" aria-label="Feedback">
               Feedback
             </button>
 
-            
             {/* ACCOUNT DROPDOWN */}
-<div className="relative">
-  <button
-    onClick={() => setOpen((prev) => !prev)}
-    className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r 
-               from-rose-600 to-pink-500 text-white rounded-full shadow 
-               hover:opacity-90 transition"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg"
-      fill="none" viewBox="0 0 24 24"
-      strokeWidth="1.8" stroke="currentColor"
-      className="w-5 h-5">
-      <path strokeLinecap="round" strokeLinejoin="round"
-        d="M5.121 17.804A8 8 0 1118.878 6.196 8 8 0 015.12 17.804z" />
-      <path strokeLinecap="round" strokeLinejoin="round"
-        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-    Account
-  </button>
+            <div className="relative">
+              <button
+                onClick={() => setOpen((prev) => !prev)}
+                className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r
+                           from-pink-600 to-pink-500 text-white rounded-full shadow
+                           hover:opacity-90 transition select-none"
+                aria-haspopup="true"
+                aria-expanded={open}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.8"
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5.121 17.804A8 8 0 1118.878 6.196 8 8 0 015.12 17.804z"
+                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Account
+              </button>
 
-  {open && (
-    <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg border rounded-xl py-2 z-50">
+              {open && (
+                <div
+                  className="absolute right-0 mt-2 w-48 bg-white shadow-lg border border-pink-200 rounded-xl py-2 z-50"
+                  role="menu"
+                >
+                  <button
+                    onClick={() => {
+                      navigate("/login");
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-pink-50 transition"
+                    role="menuitem"
+                  >
+                    Login
+                  </button>
 
-      {/* LOGIN */}
-      <button
-        onClick={() => { navigate("/login"); setOpen(false); }}
-        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-      >
-        Login
-      </button>
+                  <button
+                    onClick={() => {
+                      navigate("/register");
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-pink-50 transition"
+                    role="menuitem"
+                  >
+                    Register
+                  </button>
 
-      {/* REGISTER */}
-      <button
-        onClick={() => { navigate("/register"); setOpen(false); }}
-        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-      >
-        Register
-      </button>
+                  <hr className="my-2 border-pink-100" />
 
-      <hr className="my-2" />
+                  <button
+                    onClick={() => {
+                      navigate("/profile");
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-pink-50 transition"
+                    role="menuitem"
+                  >
+                    Profile
+                  </button>
 
-      {/* PROFILE */}
-      <button
-        onClick={() => { navigate("/profile"); setOpen(false); }}
-        className="w-full text-left px-4 py-2 hover:bg-gray-100"
-      >
-        Profile
-      </button>
-
-      {/* SIGN OUT — FIXED */}
-      <button
-        onClick={() => {
-          localStorage.removeItem("user");
-          localStorage.removeItem("cart");
-          setOpen(false);
-          navigate("/login");
-        }}
-        className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-      >
-        Sign Out
-      </button>
-
-    </div>
-  )}
-</div>
-
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem("user");
+                      localStorage.removeItem("cart");
+                      setOpen(false);
+                      navigate("/login");
+                    }}
+                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition"
+                    role="menuitem"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-
         </div>
       </header>
 
       {/* MAIN PAGE */}
-      <div className="min-h-screen bg-gray-50 py-12 px-6">
-
+      <main className="min-h-screen bg-gray-50 py-16 px-6 sm:px-12">
         {/* PAGE TITLE */}
-        <h1 className="text-4xl md:text-5xl font-extrabold text-center mb-12 select-none">
-          <span className="bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 
-                           bg-clip-text text-transparent drop-shadow">
+        <h1 className="text-5xl font-extrabold text-center mb-14 select-none">
+          <span className="bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent drop-shadow-lg">
             Shop by Category
           </span>
         </h1>
 
         {/* NEARBY SHOPS BUTTON */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-12">
           <Link
             to="/shops/nearby"
-            className="inline-block px-8 py-3 text-lg font-semibold rounded-xl border border-pink-300 hover:border-pink-700 
-                       bg-white shadow-md hover:shadow-lg transition-all bg-clip-text text-transparent
-                       bg-gradient-to-r from-pink-900 via-red-700 to-pink-400"
+            className="inline-block px-10 py-3 text-lg font-semibold rounded-xl border border-pink-300 
+                       hover:border-pink-700 bg-white shadow-md hover:shadow-lg transition-all 
+                       bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent select-none"
           >
             Find Nearby Shops →
           </Link>
         </div>
 
-        {/* VERTICAL CATEGORY LIST */}
-        <div className="max-w-4xl mx-auto space-y-10">
+        {/* CATEGORY LIST with CSS Grid */}
+        <section className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
           {categories.map((cat) => (
-            <div
+            <article
               key={cat.id}
               onClick={() => navigate(`/category/${cat.id}`)}
               className="group bg-white rounded-3xl border border-pink-200 hover:border-pink-600
-                         shadow-lg hover:shadow-2xl cursor-pointer transition-all duration-300
-                         overflow-hidden flex flex-col sm:flex-row min-h-[240px]"
+                         shadow-lg hover:shadow-2xl cursor-pointer transition duration-300
+                         overflow-hidden select-none flex flex-col"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  navigate(`/category/${cat.id}`);
+                }
+              }}
+              aria-label={`Browse category ${cat.name}`}
             >
-              <div className="w-full sm:w-1/3 h-60 sm:h-auto overflow-hidden">
+              <div className="h-48 overflow-hidden rounded-t-3xl">
                 <img
                   src={`http://localhost:8080${cat.imageUrl}`}
                   alt={cat.name}
-                  className="w-full h-full object-cover transition duration-300 
-                             group-hover:scale-105 group-hover:opacity-90"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:opacity-90"
+                  loading="lazy"
                 />
               </div>
 
-              <div className="flex flex-col justify-center items-start px-8 py-6 sm:w-2/3">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 
-                               bg-clip-text text-transparent mb-2">
+              <div className="flex flex-col justify-center px-8 py-6 flex-1">
+                <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent truncate">
                   {cat.name}
                 </h2>
-
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <p className="text-gray-600 text-base leading-relaxed mb-6 max-w-prose">
                   Explore fresh and curated {cat.name.toLowerCase()} near you.
                 </p>
-
                 <button
-                  className="mt-6 px-6 py-3 text-white text-sm font-semibold rounded-xl
-                             bg-gradient-to-r from-pink-900 via-red-700 to-pink-400
-                             shadow-md hover:shadow-lg transition-all"
+                  className="mt-auto px-8 py-3 text-white text-base font-semibold rounded-xl
+                             bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 shadow-md
+                             hover:shadow-xl transition select-none self-start"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/category/${cat.id}`);
+                  }}
+                  aria-label={`Browse ${cat.name}`}
                 >
                   Browse →
                 </button>
               </div>
-            </div>
+            </article>
           ))}
-        </div>
-      </div>
+        </section>
+      </main>
     </>
   );
 }
