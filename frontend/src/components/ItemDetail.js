@@ -1,93 +1,62 @@
-import React from 'react';
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useCart } from "../CartContext";
 
-// Assumes 'item' is passed as a prop from ItemDetailsPage.jsx
-export default function ItemDetail({ item }) { 
-    
-    // --- 🔑 CRITICAL FIX: Add a null/undefined check for the 'item' object ---
-    if (!item) {
-        // Render nothing or a loading spinner if the item hasn't loaded yet
-        return <div className="text-center py-10 text-lg text-gray-600">Loading item details...</div>;
-    }
-    // --------------------------------------------------------------------------
+// This *must* match NearbyShops field names!
+const items = [
+  { itemId: 1, itemName: "Organic Brown Eggs", stockQuantity: 12, shopName: "Green Farm Organics", distanceKm: 1.2, price: 95 },
+  { itemId: 2, itemName: "Amul Butter (500g)", stockQuantity: 45, shopName: "SuperMart Daily", distanceKm: 0.8, price: 275 },
+  { itemId: 3, itemName: "Whole Wheat Bread", stockQuantity: 0, shopName: "The Bakery Junction", distanceKm: 2.5, price: 60 },
+  { itemId: 4, itemName: "Basmati Rice (5kg)", stockQuantity: 8, shopName: "Kirana King", distanceKm: 3.1, price: 850 },
+  { itemId: 5, itemName: "Fresh Paneer", stockQuantity: 15, shopName: "Daily Dairy", distanceKm: 1.5, price: 120 },
+  { itemId: 6, itemName: "Coca Cola (2L)", stockQuantity: 100, shopName: "Beverage Depot", distanceKm: 4.2, price: 90 },
+];
 
-    // Now it's safe to access properties like item.stock, item.name, etc.
-    const isInStock = item.stock > 0; // The line that was crashing before
-    const stockStatusText = isInStock ? `In Stock (${item.stock} available)` : 'Out of Stock';
+export default function ItemDetails() {
+  const { itemId } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
 
+  const item = items.find(i => String(i.itemId) === String(itemId));
+
+  if (!item) {
     return (
-        <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden p-8 lg:p-12">
-            <div className="flex flex-col lg:flex-row gap-10">
-                
-                {/* Image Section */}
-                <div className="lg:w-1/2">
-                    <img
-                        src={item.imageUrl || 'https://via.placeholder.com/600'}
-                        alt={item.name}
-                        className="w-full h-auto object-cover rounded-2xl shadow-lg border border-gray-100"
-                    />
-                </div>
-
-                {/* Details Section */}
-                <div className="lg:w-1/2 flex flex-col justify-between">
-                    <div>
-                        {/* Tags / Status Indicators */}
-                        <div className="flex items-center space-x-3 mb-4">
-                            <span
-                                className={`px-4 py-1 text-sm font-bold uppercase rounded-full ${
-                                    isInStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                }`}
-                            >
-                                {stockStatusText}
-                            </span>
-                            {item.isProxyAvailable && (
-                                <span className="px-4 py-1 text-sm font-bold uppercase rounded-full bg-indigo-100 text-indigo-800">
-                                    Retailer Proxy Available
-                                </span>
-                            )}
-                        </div>
-
-                        {/* Item Name */}
-                        <h1 className="text-5xl font-extrabold text-gray-900 mb-4">
-                            {item.name}
-                        </h1>
-
-                        {/* Price */}
-                        <p className="text-4xl font-extrabold text-indigo-600 mb-8">
-                            ₹{item.price.toFixed(2)}
-                        </p>
-                        
-                        {/* Availability Date */}
-                        {item.available_date && (
-                            <div className="border-t border-b border-gray-200 py-4 mb-8">
-                                <p className="text-lg font-medium text-gray-700">
-                                    Expected Availability Date: 
-                                    <span className="ml-2 font-bold text-gray-900">
-                                        {item.available_date}
-                                    </span>
-                                </p>
-                            </div>
-                        )}
-                        
-                        <p className="text-gray-600 mb-8">
-                            High-quality product details...
-                        </p>
-                    </div>
-
-                    {/* Action Button */}
-                    <button
-                        disabled={!isInStock}
-                        className={`w-full py-4 rounded-xl text-xl font-bold text-white transition duration-300 shadow-lg 
-                            ${
-                                isInStock 
-                                    ? 'bg-indigo-600 hover:bg-indigo-700' 
-                                    : 'bg-gray-400 cursor-not-allowed'
-                            }
-                        `}
-                    >
-                        {isInStock ? 'Add to Cart' : 'Notify Me When Available'}
-                    </button>
-                </div>
-            </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center text-xl text-red-600">
+        Item not found.
+      </div>
     );
+  }
+
+  return (
+    <div className="bg-gray-50 min-h-screen p-8">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center text-lg text-blue-700 hover:text-blue-900 transition duration-150 mb-6 font-semibold"
+      >
+        &larr; Back to Item List
+      </button>
+      <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-lg p-8 border border-pink-200">
+        <h2 className="text-3xl font-extrabold mb-2 bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent">{item.itemName}</h2>
+        <p className="mb-3 text-gray-600 text-lg">From: <span className="text-pink-700">{item.shopName}</span></p>
+        <span className={`py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wide border ${
+          item.stockQuantity > 0 ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
+        }`}>
+          {item.stockQuantity > 0 ? `${item.stockQuantity} In Stock` : 'Out of Stock'}
+        </span>
+        <div className="mt-5">
+          <p className="text-gray-500">Distance: {item.distanceKm} km</p>
+          <p className="text-gray-500">Price: <span className="font-bold text-2xl text-pink-700">₹{item.price}</span></p>
+        </div>
+        <button
+          className="mt-6 w-full py-3 rounded-xl text-white font-bold bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 shadow-lg hover:shadow-xl"
+          onClick={() => {
+            addToCart(item); // item has all fields, addToCart ensures quantity/price assigned
+            alert("Added to cart!");
+          }}
+        >
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  );
 }

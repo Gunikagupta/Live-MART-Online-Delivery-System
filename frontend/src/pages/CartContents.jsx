@@ -7,9 +7,8 @@ export default function CartContents() {
   const { cart, clearCart } = useCart();
   const navigate = useNavigate();
 
-  // Calculate totals
   const totalPrice = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + (item.price || 0) * (item.quantity || 1),
     0
   );
 
@@ -21,33 +20,24 @@ export default function CartContents() {
       >
         ← Back
       </button>
-
       <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-pink-900 to-pink-400 text-transparent bg-clip-text">
         Your Cart
       </h1>
-
       <CartContent />
-
       {cart.length > 0 && (
         <div className="mt-10 bg-white p-6 rounded-xl shadow-md max-w-xl mx-auto">
           <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
-
           <div className="flex justify-between text-lg mb-3">
             <span>Total Items:</span>
-            <span>{cart.length}</span>
+            <span>{cart.reduce((sum, i) => sum + (i.quantity || 1), 0)}</span>
           </div>
-
           <div className="flex justify-between text-xl font-bold text-pink-600">
             <span>Total Price:</span>
             <span>₹{totalPrice}</span>
           </div>
-
-          {/* CHECKOUT BUTTON */}
           <button className="w-full mt-6 py-3 bg-gradient-to-r from-pink-600 to-red-500 text-white rounded-lg font-semibold shadow hover:opacity-90">
             Checkout
           </button>
-
-          {/* CLEAR CART */}
           <button
             onClick={clearCart}
             className="w-full mt-3 py-2 text-red-600 hover:underline"
