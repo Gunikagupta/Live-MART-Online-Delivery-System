@@ -99,6 +99,8 @@ function OrderCard({ order, feedbackList, onClick, onReorder, onCancel }) {
 
       {/* Buttons */}
       <div className="flex mt-5 gap-4">
+
+        {/* Reorder */}
         <button
           onClick={() => onReorder(order)}
           className="flex-1 bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 text-white font-semibold py-2 rounded-xl hover:opacity-90 transition"
@@ -106,6 +108,15 @@ function OrderCard({ order, feedbackList, onClick, onReorder, onCancel }) {
           Reorder
         </button>
 
+        {/* Feedback Button */}
+        <button
+          onClick={() => onClick(order.id)}
+          className="flex-1 bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-xl hover:bg-indigo-200 transition"
+        >
+          Feedback
+        </button>
+
+        {/* Cancel Order */}
         {canCancel && (
           <button
             onClick={() => onCancel(order.id)}
@@ -124,7 +135,7 @@ export default function OrdersPage() {
   const [feedback, setFeedback] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
   const navigate = useNavigate();
-  const { setCart } = useCart();
+  const { setCart, addToCart } = useCart();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
@@ -142,46 +153,36 @@ export default function OrdersPage() {
   }, []);
 
   // ---------------- REORDER ----------------
-  const { addToCart } = useCart();   // ✔ use addToCart, NOT setCart
-
-const handleReorder = (order) => {
-  order.items.forEach((item) => {
-    addToCart(
-      {
-        id: item.id,
-        name: item.name,
-        price: item.price,
-      },
-      item.qty // quantity from old order
-    );
-  });
-
-  setPopupMessage("🛒 Items added to cart again!");
-};
-
+  const handleReorder = (order) => {
+    order.items.forEach((item) => {
+      addToCart(
+        {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+        },
+        item.qty
+      );
+    });
+    setPopupMessage("🛒 Items added to cart again!");
+  };
 
   // ---------------- CANCEL ORDER ----------------
- const handleCancel = async (orderId) => {
-  try {
-    // 1️⃣ Cancel the order in backend
-    await api.put(`/api/orders/cancel/${orderId}`);
+  const handleCancel = async (orderId) => {
+    try {
+      await api.put(`/api/orders/cancel/${orderId}`);
+      alert("Order cancelled successfully! Cancellation email has been sent.");
 
-    // 2️⃣ Show success popup
-    alert("Order cancelled successfully! Cancellation email has been sent.");
-
-    // 3️⃣ Reload orders
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId ? { ...o, status: "CANCELLED" } : o
-      )
-    );
-
-  } catch (err) {
-    console.error(err);
-    alert("Failed to cancel order.");
-  }
-};
-
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId ? { ...o, status: "CANCELLED" } : o
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      alert("Failed to cancel order.");
+    }
+  };
 
   return (
     <div className="px-8 py-12 min-h-screen bg-gray-50">
@@ -198,7 +199,7 @@ const handleReorder = (order) => {
               key={order.id}
               order={order}
               feedbackList={feedback}
-              onClick={(id) => navigate(`/orders/${id}`)}
+              onClick={(id) => navigate(`/orders/${id}/feedback`)}
               onReorder={handleReorder}
               onCancel={handleCancel}
             />

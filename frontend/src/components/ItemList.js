@@ -65,14 +65,24 @@ export default function ItemList() {
       {/* HEADER */}
       <header className="w-full bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
         <div className="max-w-[1600px] mx-auto px-8 py-4 grid grid-cols-3 items-center">
-          {/* LEFT — Logo */}
-          <div
-            className="text-3xl font-extrabold bg-gradient-to-r from-rose-900 via-rose-700 to-pink-400
-                       bg-clip-text text-transparent cursor-pointer tracking-tight"
-            onClick={() => navigate("/dashboard")}
-          >
-            BazzarBari
-          </div>
+         {/* LEFT — Logo + Text */}
+<div
+  className="flex items-center gap-3 cursor-pointer select-none"
+  onClick={() => navigate("/dashboard")}
+>
+  <img
+    src="/bazarbari.jpg"
+    alt="BazaarBari Logo"
+    className="w-10 h-10 object-contain"
+  />
+
+  <span
+    className="text-3xl font-extrabold bg-gradient-to-r from-rose-900 via-rose-700 to-pink-400
+               bg-clip-text text-transparent tracking-tight"
+  >
+    BazaarBari
+  </span>
+</div>
 
           {/* CENTER — Category Name */}
           <div className="flex justify-center">

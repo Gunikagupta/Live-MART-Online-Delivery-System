@@ -71,10 +71,19 @@
           {/* Soft Pink Accent Circle */}
           <div className="absolute top-0 right-0 -mr-24 -mt-24 w-64 h-64 rounded-full bg-pink-50 opacity-50 blur-3xl pointer-events-none"></div>
 
-          {/* Logo and Heading */}
-          <h1 className="text-5xl font-extrabold mb-6 text-center bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent select-none">
-            BazzarBari
-          </h1>
+          {/* Logo & Heading */}
+<div className="flex flex-col items-center mb-6 select-none">
+  <img
+    src="/bazarbari.jpg"
+    alt="BazaarBari Logo"
+    className="w-20 h-20 object-contain mb-4"
+  />
+
+  <h1 className="text-5xl font-extrabold text-center bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent">
+    BazaarBari
+  </h1>
+</div>
+
           <h1 className="text-3xl font-extrabold mb-6 text-center bg-black bg-clip-text text-transparent select-none">
     Register
   </h1>
@@ -87,7 +96,7 @@
 
           <h2 className="text-center text-3xl font-bold mb-1 select-none">नमस्ते</h2>
           <p className="text-center text-gray-600 mb-8">
-            Register to get started with BazzarBari
+            Register to get started with BazaarBari
           </p>
 
           {/* FORM */}

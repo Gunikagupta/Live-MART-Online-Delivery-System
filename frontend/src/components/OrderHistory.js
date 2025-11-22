@@ -24,13 +24,25 @@ export default function OrderHistory() {
       {/* --- Navbar identical to CategoryGrid --- */}
       <header className="w-full bg-white shadow-sm sticky top-0 z-50 border-b border-pink-100">
         <div className="max-w-[1600px] mx-auto px-6 sm:px-12 py-4 grid grid-cols-3 items-center">
-          {/* Logo */}
-          <div
-            className="text-3xl font-extrabold bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent cursor-pointer tracking-tight select-none"
-            onClick={() => navigate("/")}
-          >
-            BazzarBari
-          </div>
+         {/* Logo + Text */}
+<div
+  className="flex items-center gap-3 cursor-pointer select-none"
+  onClick={() => navigate("/")}
+>
+  <img
+    src="/bazarbari.jpg"
+    alt="BazaarBari Logo"
+    className="w-10 h-10 object-contain"
+  />
+
+  <span
+    className="text-3xl font-extrabold bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 
+               bg-clip-text text-transparent tracking-tight"
+  >
+    BazaarBari
+  </span>
+</div>
+
           {/* Search bar */}
           <div className="flex justify-center">
             <input
