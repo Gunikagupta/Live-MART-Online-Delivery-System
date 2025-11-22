@@ -40,6 +40,18 @@ export const getFilteredItems = (filters) => {
  * Maps to Java Controller endpoint: /api/v1/search/nearby
  * FIX: The path must be /api/v1/search/nearby
  */
+// Get feedback list for a given item by itemId
+export const getFeedbackForItem = (itemId) => {
+  return api.get(`/api/feedback/item/${itemId}`);
+};
+
+// Submit feedback for an item
+export const submitFeedback = (feedbackData) => {
+  // feedbackData should be an object like:
+  // { user: { id }, item: { id }, rating, comment }
+  return api.post("/api/feedback", feedbackData);
+};
+
 export const getNearbyItems = (userLat, userLon, radiusKm) => {
     // CORRECTED PATH
   return api.get("/api/v1/search/nearby", {

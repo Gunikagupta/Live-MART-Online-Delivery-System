@@ -3,15 +3,15 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
-const GOOGLE_CLIENT_ID = "321735826118-g4q03b6vsi1eoj7aeg97qcftj2dj44j7.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID =
+  "321735826118-g4q03b6vsi1eoj7aeg97qcftj2dj44j7.apps.googleusercontent.com";
 
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,36 +45,28 @@ function Login() {
   };
 
   return (
-   <div className="min-h-screen flex items-center justify-center p-6 bg-white">
-  <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 sm:p-10 border border-gray-200 transition duration-300 hover:shadow-purple-300">
-    
+    <div className="min-h-screen flex items-center justify-center p-6 bg-white">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 sm:p-10 border border-gray-200 transition duration-300 hover:shadow-purple-300">
         {/* Brand Title */}
-        <div className="flex flex-col items-center mb-6">
-          <span className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 drop-shadow-md select-none cursor-default">
-  LiveMart
-</span>
-
-
-          <span className="mt-2 text-lg text-gray-600 font-semibold select-none cursor-default">
+        <div className="flex flex-col items-center mb-6 select-none">
+          <span className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 drop-shadow-md cursor-default">
+            LiveMart
+          </span>
+          <span className="mt-2 text-lg text-gray-600 font-semibold cursor-default">
             Online Delivery System
           </span>
           <img
             src="namaste.jpg"
             alt="Namaste"
             className="w-40 h-40 object-contain mt-6 mb-1"
-            style={{ maxWidth: "200" }}
+            style={{ maxWidth: "200px" }}
           />
         </div>
-        {/* End Brand Title */}
 
         {/* Sign In Heading */}
-        <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-3">
-          नमस्ते
-        </h1>
+        <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-3">नमस्ते</h1>
 
-        <p className="text-center text-gray-500 mb-10">
-          Sign in to access your dashboard.
-        </p>
+        <p className="text-center text-gray-500 mb-10">Sign in to access your dashboard.</p>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-7">
@@ -95,9 +87,7 @@ function Login() {
               onChange={handleChange}
               required
               placeholder="you@example.com"
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm
-                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                         placeholder-gray-400 transition duration-200"
+              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 transition duration-200"
             />
           </div>
 
@@ -118,24 +108,17 @@ function Login() {
               onChange={handleChange}
               required
               placeholder="********"
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm
-                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                         placeholder-gray-400 transition duration-200"
+              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 transition duration-200"
             />
           </div>
 
           {/* Login Button */}
           <button
-  type="submit"
-  className="w-full py-3 rounded-xl shadow-lg text-lg font-semibold text-white
-    bg-gradient-to-br from-pink-900 via-red-700 to-pink-500
-    hover:from-pink-800 hover:via-red-600 hover:to-pink-400
-    focus:outline-none focus:ring-4 focus:ring-offset-1 focus:ring-pink-700
-    transition duration-300 ease-in-out"
->
-  Login
-</button>
-
+            type="submit"
+            className="w-full py-3 rounded-xl shadow-lg text-lg font-semibold text-white bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 hover:from-pink-800 hover:via-red-600 hover:to-pink-400 focus:outline-none focus:ring-4 focus:ring-offset-1 focus:ring-pink-700 transition duration-300 ease-in-out"
+          >
+            Login
+          </button>
         </form>
 
         {/* Separator */}
@@ -161,12 +144,11 @@ function Login() {
           <p className="font-medium text-gray-600">
             New user?{" "}
             <Link
-  to="/register"
-  className="bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 bg-clip-text text-transparent font-semibold transition duration-150 focus:outline-none"
->
-  Create an account
-</Link>
-
+              to="/register"
+              className="bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 bg-clip-text text-transparent font-semibold transition duration-150 focus:outline-none hover:underline"
+            >
+              Create an account
+            </Link>
           </p>
         </div>
       </div>

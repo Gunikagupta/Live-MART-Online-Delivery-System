@@ -58,9 +58,17 @@ this.notificationService = notificationService;
      * Update order status.
      */
     @PutMapping("/{orderId}/status")
-
-    
-
+<<<<<<< Updated upstream
+    public ResponseEntity<?> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam String status
+    ) {
+        try {
+            Order updatedOrder = orderService.updateOrderStatus(orderId, status);
+            return ResponseEntity.ok(orderService.convertToDTO(updatedOrder));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Failed to update order status: " + e.getMessage());
+=======
     public ResponseEntity<Order> updateOrderStatus(
             @PathVariable Long orderId, @RequestParam String status) {
         Order order = orderService.updateOrderStatus(orderId, status);
