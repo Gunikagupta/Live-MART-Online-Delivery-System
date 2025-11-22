@@ -11,7 +11,6 @@ import com.livemart.backend.repository.UserRepository;
 import com.livemart.backend.util.CalendarInviteUtils;
 
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,131 +21,149 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+    private final ItemRepository itemRepository;
+    private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private ItemRepository itemRepository;
+    public OrderService(
+            OrderRepository orderRepository,
+            ItemRepository itemRepository,
+            NotificationService notificationService,
+            UserRepository userRepository
+    ) {
+        this.orderRepository = orderRepository;
+        this.itemRepository = itemRepository;
+        this.notificationService = notificationService;
+        this.userRepository = userRepository;
+    }
 
-    @Autowired
-    private NotificationService notificationService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    /**
-     * Places an order: loads user & items from DB, updates stock, and saves all.
-     */
+    // ----------------------------------------------------
+    // PLACE ORDER
+    // ----------------------------------------------------
     @Transactional
     public Order placeOrder(Order order) {
 
-        // 1. Load REAL user from DB
+        // Load user from DB
         User user = userRepository.findById(order.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         order.setUser(user);
 
-        // 2. Set initial metadata
         order.setOrderDate(LocalDateTime.now());
         order.setStatus("PLACED");
 
-        // 3. Process each order item
+        // Process items
         for (OrderItem oi : order.getOrderItems()) {
-            // Load item from DB
+
             Item item = itemRepository.findById(oi.getItem().getId())
                     .orElseThrow(() -> new RuntimeException("Item not found"));
-            if (item.getStock() == null) {
-                throw new RuntimeException("Item stock is NULL for item: " + item.getName());
+
+            // Stock check
+            if (item.getStock() < oi.getQuantity()) {
+                throw new RuntimeException("Insufficient stock for " + item.getName());
             }
-            // Check & update stock
-            int newStock = item.getStock() - oi.getQuantity();
-            if (newStock < 0) {
-                throw new RuntimeException("Insufficient stock for item: " + item.getName());
-            }
-            item.setStock(newStock);
+
+            item.setStock(item.getStock() - oi.getQuantity());
             itemRepository.save(item);
 
-            // Set snapshot values
-            oi.setPrice(item.getPrice());
             oi.setItem(item);
+            oi.setPrice(item.getPrice());   // snapshot price
             oi.setOrder(order);
         }
 
-        // 4. Save order with all items
         Order saved = orderRepository.save(order);
 
-        // 5. Email notification
+        // ------------ Send Email Notification ------------
         if (order.isOfflineOrder()) {
             String ics = CalendarInviteUtils.generateICS(
                     "Offline Order Pickup",
-                    "Your offline order pickup at: " + order.getDeliveryAddress(),
+                    "Pickup your order from: " + order.getDeliveryAddress(),
                     order.getDeliveryAddress(),
                     order.getOfflineOrderDate(),
                     order.getOfflineOrderDate().plusHours(1)
             );
+
             notificationService.sendEmailWithCalendarInvite(
                     user.getEmail(),
                     "Your Offline Order Pickup Reminder",
-                    "Please find your order pickup invitation attached.",
+                    "Please check the attached calendar invite.",
                     ics
             );
         } else {
-            // Customized HTML email for delivery or collect
             notificationService.sendCustomOrderEmail(saved);
         }
+
         return saved;
     }
 
+    // ----------------------------------------------------
+    // GET ORDERS BY USER
+    // ----------------------------------------------------
     public List<Order> getOrdersByUser(Long userId) {
-        return orderRepository.findAll().stream()
-                .filter(order -> order.getUser() != null && order.getUser().getId().equals(userId))
-                .collect(Collectors.toList());
+        return orderRepository.findByUserId(userId);
     }
 
+    // ----------------------------------------------------
+    // UPDATE ORDER STATUS
+    // ----------------------------------------------------
     public Order updateOrderStatus(Long orderId, String status) {
-        Optional<Order> optOrder = orderRepository.findById(orderId);
-        if (optOrder.isEmpty()) {
-            throw new RuntimeException("Order not found: " + orderId);
-        }
-        Order order = optOrder.get();
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
         order.setStatus(status);
         return orderRepository.save(order);
     }
 
-    public void reminderForOfflineOrder(Order order) {
-        String ics = CalendarInviteUtils.generateICS(
-                "Offline Order Pickup",
-                "Order at: " + order.getDeliveryAddress(),
-                order.getDeliveryAddress(),
-                order.getOfflineOrderDate(),
-                order.getOfflineOrderDate().plusHours(1)
-        );
-        notificationService.sendEmailWithCalendarInvite(
-                order.getUser().getEmail(),
-                "Order Reminder: Scheduled Pickup",
-                "Your order is scheduled. See the attached invite.",
-                ics
-        );
+    // ----------------------------------------------------
+    // CANCEL ORDER (NEW)
+    // ----------------------------------------------------
+    public Order cancelOrder(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if ("DELIVERED".equalsIgnoreCase(order.getStatus())) {
+            throw new RuntimeException("Delivered orders cannot be cancelled.");
+        }
+
+        order.setStatus("CANCELLED");
+        return orderRepository.save(order);
     }
 
+    // ----------------------------------------------------
+    // CONVERT ORDER TO RESPONSE DTO
+    // ----------------------------------------------------
     public OrderResponseDTO convertToDTO(Order order) {
+
         OrderResponseDTO dto = new OrderResponseDTO();
         dto.id = order.getId();
         dto.createdAt = order.getOrderDate();
         dto.status = order.getStatus();
         dto.deliveryAddress = order.getDeliveryAddress();
+        dto.orderType = order.getOrderType();
         dto.offlineOrder = order.isOfflineOrder();
         dto.offlineOrderDate = order.getOfflineOrderDate();
+
         dto.items = order.getOrderItems().stream().map(oi -> {
-            OrderResponseDTO.ItemDTO i = new OrderResponseDTO.ItemDTO();
-            i.itemId = oi.getItem().getId();
-            i.name = oi.getItem().getName();
-            i.qty = oi.getQuantity();
-            i.price = oi.getPrice();
-            return i;
-        }).toList();
+            OrderResponseDTO.ItemDTO itemDTO = new OrderResponseDTO.ItemDTO();
+            itemDTO.itemId = oi.getItem().getId();
+            itemDTO.name = oi.getItem().getName();
+            itemDTO.qty = oi.getQuantity();
+            itemDTO.price = oi.getPrice();
+            return itemDTO;
+        }).collect(Collectors.toList());
+
+        dto.total = order.getOrderItems().stream()
+                .mapToDouble(oi -> oi.getPrice() * oi.getQuantity())
+                .sum();
+
         return dto;
     }
 
+    // ----------------------------------------------------
+    // GET ORDER BY ID
+    // ----------------------------------------------------
     public Optional<Order> getOrderById(Long orderId) {
         return orderRepository.findById(orderId);
     }

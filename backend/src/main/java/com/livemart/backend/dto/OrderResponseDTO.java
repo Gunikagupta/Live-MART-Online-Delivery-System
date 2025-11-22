@@ -12,6 +12,9 @@ public class OrderResponseDTO {
     public boolean offlineOrder;
     public LocalDateTime offlineOrderDate;
 
+    public double total;      // <-- required
+    public String orderType;  // <-- required
+
     public List<ItemDTO> items;
 
     public static class ItemDTO {

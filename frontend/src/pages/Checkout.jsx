@@ -4,9 +4,6 @@ import { useCart } from "../CartContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api/apiClient";
 import { PayPalButtons } from "@paypal/react-paypal-js";
-
-// Import from the shared file you created:
-// frontend/src/components/nearbyShopsData.js
 import { getNearbyShopsMock } from "../components/nearbyShopsData";
 
 export default function Checkout() {
@@ -21,8 +18,14 @@ export default function Checkout() {
   const [pickupLocation, setPickupLocation] = useState("");
   const [nearbyShops, setNearbyShops] = useState([]);
 
-  // Load nearby shops from geolocation
+  // ---------------- COUPON STATES ----------------
+  const [selectedCoupon, setSelectedCoupon] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [isFirstOrder, setIsFirstOrder] = useState(false);
+
+  // ---------------- SINGLE CLEAN useEffect ----------------
   useEffect(() => {
+    // Load Nearby Shops
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const lat = pos.coords.latitude;
@@ -32,17 +35,90 @@ export default function Checkout() {
         setNearbyShops(res.data);
       },
       async () => {
-        // fallback if user blocks location
         const res = await getNearbyShopsMock(19.05, 72.85, 5);
         setNearbyShops(res.data);
       }
     );
+
+    // Check If First Order
+    async function checkFirstOrder() {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) return;
+
+      try {
+        const res = await api.get(`/api/orders/user/${user.id}`);
+        setIsFirstOrder(res.data.length === 0); // TRUE only if 0 orders
+      } catch (err) {
+        console.error("Failed to fetch orders", err);
+      }
+    }
+
+    checkFirstOrder();
   }, []);
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // ---------------- SUBTOTAL ----------------
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
-  const addressNeeded = deliveryMode === "DELIVERY";
+  // ---------------- DETERMINE AVAILABLE COUPONS ----------------
+  const eligibleCoupons = [];
 
+  if (isFirstOrder) {
+    eligibleCoupons.push({
+      id: "WELCOME10",
+      label: "🎁 Welcome10 — 10% OFF (First Order)",
+      discountType: "PERCENT",
+      value: 10,
+    });
+  }
+
+  if (subtotal >= 1000) {
+    eligibleCoupons.push({
+      id: "BIG_BASKET",
+      label: "🛒 Big Basket Bonus — ₹75 OFF above ₹1000",
+      discountType: "FLAT",
+      value: 75,
+    });
+  }
+
+  if (subtotal >= 3000) {
+    eligibleCoupons.push({
+      id: "MEGA_SAVER",
+      label: "🎉 Mega Saver Deal — ₹200 OFF above ₹3000",
+      discountType: "FLAT",
+      value: 200,
+    });
+  }
+
+  if (subtotal >= 5000) {
+    eligibleCoupons.push({
+      id: "PREMIUM_REWARD",
+      label: "⭐ Premium Shopper Reward — ₹400 OFF above ₹5000",
+      discountType: "FLAT",
+      value: 400,
+    });
+  }
+
+  // ---------------- APPLY DISCOUNT WHEN COUPON CHANGES ----------------
+  useEffect(() => {
+    let d = 0;
+
+    const coupon = eligibleCoupons.find((c) => c.id === selectedCoupon);
+
+    if (coupon) {
+      if (coupon.discountType === "PERCENT") {
+        d = (subtotal * coupon.value) / 100;
+      } else if (coupon.discountType === "FLAT") {
+        d = coupon.value;
+      }
+    }
+
+    setDiscount(d);
+  }, [selectedCoupon, subtotal, isFirstOrder]);
+
+  // ---------------- DELIVERY ADDRESS ----------------
   const getDeliveryAddressValue = () => {
     if (deliveryMode === "DELIVERY") return address;
 
@@ -50,17 +126,26 @@ export default function Checkout() {
     return shop ? `Pickup: ${shop.shopName}` : "";
   };
 
-  // --- PayPal handler ---
-  const placeOrderAfterPayment = async (paypalDetails) => {
-    if (deliveryMode === "COLLECT" && !pickupLocation) {
-      alert("Please select a shop to collect your order from.");
-      return;
-    }
+  // ---------------- TOTALS ----------------
+  const total = subtotal;
+  const finalTotal = Math.max(total - discount, 0).toFixed(2);
 
+  // ---------------- ORDER VALIDATION ----------------
+  const validateBeforeOrder = () => {
     if (deliveryMode === "DELIVERY" && !address.trim()) {
       alert("Please enter your address.");
-      return;
+      return false;
     }
+    if (deliveryMode === "COLLECT" && !pickupLocation) {
+      alert("Please select a pickup shop.");
+      return false;
+    }
+    return true;
+  };
+
+  // ---------------- PLACE ORDER ----------------
+  const placeOrder = async () => {
+    if (!validateBeforeOrder()) return;
 
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) return alert("User not logged in");
@@ -73,8 +158,9 @@ export default function Checkout() {
       })),
       deliveryAddress: getDeliveryAddressValue(),
       orderType: deliveryMode,
-      status: "PAID",
-      paymentId: paypalDetails.id,
+      status: "PLACED",
+      discountAmount: discount,
+      finalAmount: finalTotal,
       offlineOrder: false,
       offlineOrderDate: schedule || null,
     };
@@ -89,17 +175,9 @@ export default function Checkout() {
     }
   };
 
-  // --- COD handler ---
-  const placeOrder = async () => {
-    if (deliveryMode === "DELIVERY" && !address.trim()) {
-      alert("Please enter your address.");
-      return;
-    }
-
-    if (deliveryMode === "COLLECT" && !pickupLocation) {
-      alert("Please select a pickup shop.");
-      return;
-    }
+  // ---------------- AFTER PAYPAL PAYMENT ----------------
+  const placeOrderAfterPayment = async (details) => {
+    if (!validateBeforeOrder()) return;
 
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) return alert("User not logged in");
@@ -112,7 +190,10 @@ export default function Checkout() {
       })),
       deliveryAddress: getDeliveryAddressValue(),
       orderType: deliveryMode,
-      status: "PLACED",
+      status: "PAID",
+      discountAmount: discount,
+      finalAmount: finalTotal,
+      paymentId: details.id,
       offlineOrder: false,
       offlineOrderDate: schedule || null,
     };
@@ -123,60 +204,56 @@ export default function Checkout() {
       navigate("/orders");
     } catch (err) {
       console.error(err);
-      alert("Order placement failed.");
+      alert("Order failed");
     }
   };
 
+  // ---------------- UI ----------------
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-12">
-        {/* LEFT CARD */}
+        {/* LEFT SIDE */}
         <div className="bg-white rounded-3xl shadow-xl p-10 md:col-span-2">
           <h1 className="text-4xl font-extrabold mb-8 bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent">
             Checkout
           </h1>
 
           {/* Order Method */}
-          <label className="block font-semibold text-gray-700 mb-2">
-            Order Method
-          </label>
-          <div className="flex gap-6 mb-6">
-            <label className="flex items-center gap-2">
+          <label className="font-semibold">Order Method</label>
+          <div className="flex gap-6 mb-6 mt-2">
+            <label>
               <input
                 type="radio"
                 checked={deliveryMode === "DELIVERY"}
                 onChange={() => setDeliveryMode("DELIVERY")}
                 className="accent-pink-700"
               />
-              Door Delivery
+              <span className="ml-2">Door Delivery</span>
             </label>
-            <label className="flex items-center gap-2">
+
+            <label>
               <input
                 type="radio"
                 checked={deliveryMode === "COLLECT"}
                 onChange={() => setDeliveryMode("COLLECT")}
                 className="accent-pink-700"
               />
-              Collect From Shop
+              <span className="ml-2">Collect From Shop</span>
             </label>
           </div>
 
-          {/* Pickup Shop Dropdown */}
+          {/* Pickup dropdown */}
           {deliveryMode === "COLLECT" && (
             <>
-              <label className="block font-semibold text-gray-700 mb-2">
-                Choose Pickup Shop
-              </label>
-
+              <label className="font-semibold">Choose Pickup Shop</label>
               <select
                 value={pickupLocation}
                 onChange={(e) => setPickupLocation(e.target.value)}
-                className="w-full border border-gray-200 bg-gray-50 rounded-xl p-4 mb-6 focus:ring-2 focus:ring-pink-400"
+                className="w-full mt-2 border p-4 rounded-xl bg-gray-50 mb-6"
               >
-                <option value="">Select a nearby shop</option>
-
+                <option value="">Select shop</option>
                 {nearbyShops.map((shop) => (
                   <option key={shop.id} value={shop.id}>
                     {shop.shopName} ({shop.distanceKm} km)
@@ -186,120 +263,134 @@ export default function Checkout() {
             </>
           )}
 
-          {/* Address for Delivery */}
+          {/* Address */}
           {deliveryMode === "DELIVERY" && (
             <>
-              <label className="block font-semibold text-gray-700 mb-2">
-                Delivery Address
-              </label>
+              <label className="font-semibold">Delivery Address</label>
               <textarea
+                className="w-full mt-2 border p-4 rounded-xl bg-gray-50 mb-6"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="w-full border border-gray-200 bg-gray-50 rounded-xl p-4 mb-6"
-                placeholder="Enter your full address"
               />
             </>
           )}
 
           {/* Schedule */}
-          <label className="block font-semibold text-gray-700 mb-2">
-            Schedule Delivery/Collect (optional)
-          </label>
+          <label className="font-semibold">Schedule Delivery/Collect</label>
           <input
             type="datetime-local"
+            className="w-full mt-2 border p-4 rounded-xl bg-gray-50 mb-6"
             value={schedule}
             onChange={(e) => setSchedule(e.target.value)}
-            className="w-full border border-gray-200 bg-gray-50 rounded-xl p-4 mb-6"
           />
 
+          {/* COUPONS */}
+          <h2 className="text-xl font-extrabold mb-4 text-pink-700">
+            Available Coupons
+          </h2>
+
+          {eligibleCoupons.length === 0 ? (
+            <p className="text-gray-500 mb-6">
+              No coupons available for current order.
+            </p>
+          ) : (
+            <>
+              <label className="font-medium text-gray-700">Choose a Coupon</label>
+              <select
+                className="w-full border p-4 rounded-xl bg-gray-50 mt-2 mb-6"
+                value={selectedCoupon}
+                onChange={(e) => setSelectedCoupon(e.target.value)}
+              >
+                <option value="">No Coupon</option>
+
+                {eligibleCoupons.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+
           {/* Payment Method */}
-          <label className="block font-semibold text-gray-700 mb-2">
-            Payment Method
-          </label>
-          <div className="flex gap-6 mb-10">
-            <label className="flex items-center gap-2">
+          <label className="font-semibold">Payment Method</label>
+          <div className="flex gap-6 mb-10 mt-2">
+            <label>
               <input
                 type="radio"
                 checked={paymentMethod === "COD"}
                 onChange={() => setPaymentMethod("COD")}
                 className="accent-pink-700"
               />
-              Cash on Delivery/Collect
+              <span className="ml-2">Cash on Delivery</span>
             </label>
-            <label className="flex items-center gap-2">
+
+            <label>
               <input
                 type="radio"
                 checked={paymentMethod === "ONLINE"}
                 onChange={() => setPaymentMethod("ONLINE")}
                 className="accent-pink-700"
               />
-              Online Payment (PayPal)
+              <span className="ml-2">Online Payment</span>
             </label>
           </div>
 
-          {/* COD Button */}
-          {paymentMethod === "COD" && (
+          {/* Buttons */}
+          {paymentMethod === "COD" ? (
             <button
               onClick={placeOrder}
-              className="w-full py-4 rounded-xl text-white font-bold bg-gradient-to-r from-pink-900 via-red-700 to-pink-400"
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-pink-900 to-red-500 text-white font-bold"
             >
-              {deliveryMode === "COLLECT"
-                ? "Book and Collect"
-                : "Place Order"}
+              Place Order
             </button>
-          )}
-
-          {/* PayPal */}
-          {paymentMethod === "ONLINE" && (
-            <div className="w-full">
-              <PayPalButtons
-                createOrder={(data, actions) =>
-                  actions.order.create({
-                    purchase_units: [
-                      {
-                        amount: { value: total.toString() },
-                      },
-                    ],
-                  })
-                }
-                onApprove={(data, actions) =>
-                  actions.order.capture().then((details) => {
-                    placeOrderAfterPayment(details);
-                  })
-                }
-              />
-            </div>
+          ) : (
+            <PayPalButtons
+              createOrder={(data, actions) =>
+                actions.order.create({
+                  purchase_units: [
+                    { amount: { value: finalTotal.toString() } },
+                  ],
+                })
+              }
+              onApprove={(data, actions) =>
+                actions.order.capture().then((details) =>
+                  placeOrderAfterPayment(details)
+                )
+              }
+            />
           )}
         </div>
 
-        {/* RIGHT: Order Summary */}
+        {/* RIGHT SIDE – Order Summary */}
         <div className="bg-white rounded-3xl shadow-xl p-10">
-          <h2 className="text-2xl font-extrabold bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent mb-6">
+          <h2 className="text-2xl font-extrabold mb-6 text-pink-700">
             Order Summary
           </h2>
 
-          {cart.length === 0 ? (
-            <p className="text-gray-500">Your cart is empty.</p>
-          ) : (
-            cart.map((item) => (
-              <div
-                key={item.id}
-                className="mb-6 pb-4 border-b border-dashed border-pink-100"
-              >
-                <h3 className="font-semibold text-lg">{item.name}</h3>
-                <p>Qty: {item.quantity}</p>
-                <p className="font-bold text-pink-700">
-                  ₹{item.price * item.quantity}
-                </p>
-              </div>
-            ))
-          )}
+          {cart.map((item) => (
+            <div key={item.id} className="mb-6 border-b pb-4">
+              <h3 className="font-semibold">{item.name}</h3>
+              <p>Qty: {item.quantity}</p>
+              <p className="text-pink-700 font-bold">
+                ₹{item.price * item.quantity}
+              </p>
+            </div>
+          ))}
 
-          <div className="flex justify-between text-xl font-bold mt-8">
+          <div className="flex justify-between font-bold text-xl mt-6">
+            <span>Subtotal</span>
+            <span>₹{total.toFixed(2)}</span>
+          </div>
+
+          <div className="flex justify-between text-green-600 font-bold text-lg mt-3">
+            <span>Discount</span>
+            <span>- ₹{discount.toFixed(2)}</span>
+          </div>
+
+          <div className="flex justify-between font-extrabold text-2xl mt-6">
             <span>Total</span>
-            <span className="bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent">
-              ₹{total}
-            </span>
+            <span className="text-pink-700">₹{finalTotal}</span>
           </div>
         </div>
       </div>
