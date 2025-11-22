@@ -29,7 +29,7 @@ export default function OrderHistory() {
             className="text-3xl font-extrabold bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent cursor-pointer tracking-tight select-none"
             onClick={() => navigate("/")}
           >
-            LiveMart
+            BazzarBari
           </div>
           {/* Search bar */}
           <div className="flex justify-center">

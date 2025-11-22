@@ -71,7 +71,7 @@ export default function ItemList() {
                        bg-clip-text text-transparent cursor-pointer tracking-tight"
             onClick={() => navigate("/dashboard")}
           >
-            LiveMart
+            BazzarBari
           </div>
 
           {/* CENTER — Category Name */}

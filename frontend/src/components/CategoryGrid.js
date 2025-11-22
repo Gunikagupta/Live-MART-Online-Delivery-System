@@ -26,7 +26,7 @@ export default function CategoryGrid() {
                        bg-clip-text text-transparent cursor-pointer tracking-tight select-none"
             onClick={() => navigate("/")}
           >
-            LiveMart
+            BazzarBari
           </div>
 
           {/* CENTER – SEARCH BAR */}

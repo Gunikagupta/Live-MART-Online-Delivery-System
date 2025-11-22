@@ -1,48 +1,55 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem("cart");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cart, setCart] = useState([]);
 
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
-  const addToCart = (item, quantity) => {
-    setCart((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
-
-      if (existing) {
-        return prev.map((i) =>
-          i.id === item.id
-            ? { ...i, quantity: i.quantity + quantity }
-            : i
-        );
-      }
-
-      return [...prev, { ...item, quantity }];
-    });
+  // Generate a fallback ID if item has no ID from backend
+  const ensureId = (item) => {
+    return item.id || `${item.name}-${Date.now()}-${Math.random()}`;
   };
 
+  // ADD TO CART
+  const addToCart = (item) => {
+    const fixedId = ensureId(item);
+
+    const existing = cart.find((i) => i.id === fixedId);
+
+    if (existing) {
+      setCart(
+        cart.map((i) =>
+          i.id === fixedId ? { ...i, quantity: i.quantity + 1 } : i
+        )
+      );
+    } else {
+      setCart([...cart, { ...item, id: fixedId, quantity: 1 }]);
+    }
+  };
+
+  // UPDATE QUANTITY
   const updateQuantity = (id, newQty) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, newQty) }
-          : item
+    if (newQty <= 0) {
+      removeFromCart(id);
+      return;
+    }
+
+    setCart(
+      cart.map((item) =>
+        item.id === id ? { ...item, quantity: newQty } : item
       )
     );
   };
 
+  // REMOVE FROM CART
   const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+    setCart(cart.filter((item) => item.id !== id));
   };
 
-  const clearCart = () => setCart([]);
+  // CLEAR CART
+  const clearCart = () => {
+    setCart([]);
+  };
 
   return (
     <CartContext.Provider

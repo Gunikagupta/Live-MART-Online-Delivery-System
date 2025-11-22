@@ -19,12 +19,14 @@ import NearbyShops from "./pages/NearbyShops";
 import NearbyShopsMap from "./pages/NearbyShopsMap";
 import PlaceOrderForm from "./components/PlaceOrderForm";
 import OrderHistory from "./components/OrderHistory";
-import FeedbackPage from "./pages/FeedbackPage"; // Import your FeedbackPage
+import FeedbackPage from "./pages/FeedbackPage";
+import WholesalerDashboard from "./pages/WholesalerDashboard";
+import RetailerDashboard from "./pages/RetailerDashboard";  // ⭐ ADDED
 
-// ⭐ YOUR PAYPAL CLIENT ID ⭐
-const PAYPAL_CLIENT_ID = "AUXHndhp9RD1py5GqyfuXCpXlv33V4Q5V65DoVsePrnyCddU1rBs6H-SNMLPItTYjXB0NH3tkf-cUEna";
+// ⭐ PAYPAL CLIENT ID
+const PAYPAL_CLIENT_ID =
+  "AUXHndhp9RD1py5GqyfuXCpXlv33V4Q5V65DoVsePrnyCddU1rBs6H-SNMLPItTYjXB0NH3tkf-cUEna";
 
-// Wrapper component to pass itemId param to FeedbackPage
 function FeedbackPageWrapper() {
   const { itemId } = useParams();
   return <FeedbackPage itemId={itemId} />;
@@ -40,13 +42,20 @@ function App() {
     >
       <Router>
         <Routes>
-          {/* Home → Login */}
+
+          {/* Login */}
           <Route path="/" element={<Login />} />
 
-          {/* Auth */}
+          {/* Register */}
           <Route path="/register" element={<Register />} />
 
-          {/* Dashboard / Categories */}
+          {/* Wholesaler */}
+          <Route path="/wholeseller" element={<WholesalerDashboard />} />
+
+          {/* Retailer */}
+          <Route path="/retailer-dashboard" element={<RetailerDashboard />} />  {/* ⭐ ADDED */}
+
+          {/* Customer Dashboard */}
           <Route path="/dashboard" element={<CategoryGrid />} />
           <Route path="/category/:categoryId" element={<ItemList />} />
           <Route path="/item/:itemId" element={<ItemDetail />} />
@@ -62,7 +71,7 @@ function App() {
           {/* Profile */}
           <Route path="/profile" element={<ProfilePage />} />
 
-          {/* Retailer Proxy */}
+          {/* Retailer Proxy Items */}
           <Route path="/retailer/:retailerId/proxy-items" element={<RetailerProxyItems />} />
 
           {/* Search */}
@@ -72,12 +81,13 @@ function App() {
           <Route path="/shops/nearby" element={<NearbyShops />} />
           <Route path="/shops/map" element={<NearbyShopsMap />} />
 
-          {/* Optional extras */}
+          {/* Order Forms */}
           <Route path="/orders/create" element={<PlaceOrderForm />} />
           <Route path="/orders/history" element={<OrderHistory />} />
 
-          {/* Feedback Page with itemId param */}
+          {/* Feedback */}
           <Route path="/feedback/:itemId" element={<FeedbackPageWrapper />} />
+
         </Routes>
       </Router>
     </PayPalScriptProvider>

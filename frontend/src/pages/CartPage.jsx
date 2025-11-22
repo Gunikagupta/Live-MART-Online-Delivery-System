@@ -1,7 +1,7 @@
 import React from "react";
 import { useCart } from "../CartContext";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";   // <-- correct path
+import Navbar from "./Navbar";
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCart();
@@ -11,7 +11,6 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      
       {/* Navbar */}
       <Navbar />
 
@@ -23,9 +22,9 @@ export default function CartPage() {
         ) : (
           <>
             <div className="space-y-4">
-              {cart.map((item) => (
+              {cart.map((item, index) => (
                 <div
-                  key={item.id}
+                  key={item.id || index}
                   className="bg-white p-5 rounded-xl shadow border flex justify-between items-start"
                 >
                   <div className="flex-1">

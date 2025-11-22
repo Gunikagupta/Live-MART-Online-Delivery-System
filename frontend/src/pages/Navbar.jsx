@@ -30,7 +30,7 @@ export default function Navbar() {
           className="text-3xl font-extrabold cursor-pointer tracking-tight"
           onClick={() => navigate("/dashboard")}
         >
-          LiveMart
+          BazzarBari
         </div>
 
         {/* CENTER — Page Title */}

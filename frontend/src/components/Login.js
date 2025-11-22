@@ -13,50 +13,57 @@ function Login() {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  const routeUser = (role) => {
+    const r = role.toLowerCase();
+
+    if (r === "wholesaler" || r === "wholeseller") {
+      navigate("/wholeseller");
+    } else if (r === "retailer") {
+      navigate("/retailer-dashboard");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
+    const loginAndRoute = async (payload) => {
+      const res = await axios.post("http://localhost:8080/api/auth/login", payload);
+      alert("Welcome " + res.data.name + " (" + res.data.role + ")");
+      localStorage.setItem("user", JSON.stringify(res.data));
+      routeUser(res.data.role);
+    };
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           try {
-            const payload = {
+            await loginAndRoute({
               ...formData,
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
-            };
-            const res = await axios.post("http://localhost:8080/api/auth/login", payload);
-            alert("Welcome " + res.data.name + " (" + res.data.role + ")");
-            localStorage.setItem("user", JSON.stringify(res.data));
-            navigate("/dashboard");
-          } catch (err) {
+            });
+          } catch {
             alert("Invalid email or password");
           }
         },
-        async (error) => {
-          // User denied location
+        async () => {
           try {
-            const res = await axios.post("http://localhost:8080/api/auth/login", formData);
-            alert("Welcome " + res.data.name + " (" + res.data.role + ")");
-            localStorage.setItem("user", JSON.stringify(res.data));
-            navigate("/dashboard");
-          } catch (err) {
+            await loginAndRoute(formData);
+          } catch {
             alert("Invalid email or password");
           }
         }
       );
     } else {
       try {
-        const res = await axios.post("http://localhost:8080/api/auth/login", formData);
-        alert("Welcome " + res.data.name + " (" + res.data.role + ")");
-        localStorage.setItem("user", JSON.stringify(res.data));
-        navigate("/dashboard");
-      } catch (err) {
+        await loginAndRoute(formData);
+      } catch {
         alert("Invalid email or password");
       }
     }
   };
-  
 
   const handleGoogleLoginSuccess = async (response) => {
     try {
@@ -68,9 +75,11 @@ function Login() {
       const res = await axios.post("http://localhost:8080/api/auth/google-login", {
         token: response.credential,
       });
+
       alert("Logged in with Google!");
       localStorage.setItem("user", JSON.stringify(res.data));
-      navigate("/dashboard");
+
+      routeUser(res.data.role);
     } catch (error) {
       alert("Google login failed");
       console.error(error);
@@ -80,14 +89,14 @@ function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-white">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 sm:p-10 border border-gray-200 transition duration-300 hover:shadow-purple-300">
+
         {/* Brand Title */}
         <div className="flex flex-col items-center mb-6 select-none">
-          <span className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 drop-shadow-md cursor-default">
-            LiveMart
+          <span className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 drop-shadow-md">
+            BazzarBari
           </span>
-          <span className="mt-2 text-lg text-gray-600 font-semibold cursor-default">
-            Online Delivery System
-          </span>
+          <span className="mt-2 text-lg text-gray-600 font-semibold">Online Delivery System</span>
+
           <img
             src="namaste.jpg"
             alt="Namaste"
@@ -96,19 +105,14 @@ function Login() {
           />
         </div>
 
-        {/* Sign In Heading */}
+        {/* Heading */}
         <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-3">नमस्ते</h1>
-
         <p className="text-center text-gray-500 mb-10">Sign in to access your dashboard.</p>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-7">
-          {/* Email Input */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email Address
             </label>
             <input
@@ -120,16 +124,12 @@ function Login() {
               onChange={handleChange}
               required
               placeholder="you@example.com"
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 transition duration-200"
+              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm"
             />
           </div>
 
-          {/* Password Input */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               Password
             </label>
             <input
@@ -141,27 +141,26 @@ function Login() {
               onChange={handleChange}
               required
               placeholder="********"
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 transition duration-200"
+              className="w-full px-5 py-3 border border-gray-300 rounded-xl shadow-sm"
             />
           </div>
 
-          {/* Login Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-xl shadow-lg text-lg font-semibold text-white bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 hover:from-pink-800 hover:via-red-600 hover:to-pink-400 focus:outline-none focus:ring-4 focus:ring-offset-1 focus:ring-pink-700 transition duration-300 ease-in-out"
+            className="w-full py-3 rounded-xl shadow-lg text-lg font-semibold text-white bg-gradient-to-br from-pink-900 via-red-700 to-pink-500"
           >
             Login
           </button>
         </form>
 
-        {/* Separator */}
+        {/* OR */}
         <div className="flex items-center my-8">
           <div className="flex-grow border-t border-gray-300"></div>
-          <span className="mx-4 text-gray-400 font-semibold text-sm select-none">OR</span>
+          <span className="mx-4 text-gray-400 font-semibold text-sm">OR</span>
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
 
-        {/* Google OAuth */}
+        {/* Google Login */}
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <div className="w-full flex justify-center">
             <GoogleLogin
@@ -172,14 +171,11 @@ function Login() {
           </div>
         </GoogleOAuthProvider>
 
-        {/* Create Account Link */}
+        {/* Register Link */}
         <div className="mt-10 text-center text-sm">
           <p className="font-medium text-gray-600">
             New user?{" "}
-            <Link
-              to="/register"
-              className="bg-gradient-to-br from-pink-900 via-red-700 to-pink-500 bg-clip-text text-transparent font-semibold transition duration-150 focus:outline-none hover:underline"
-            >
+            <Link to="/register" className="text-pink-600 font-semibold hover:underline">
               Create an account
             </Link>
           </p>
@@ -190,3 +186,4 @@ function Login() {
 }
 
 export default Login;
+  
