@@ -15,15 +15,48 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", formData);
-      alert("Welcome " + res.data.name + " (" + res.data.role + ")");
-      localStorage.setItem("user", JSON.stringify(res.data));
-      navigate("/dashboard");
-    } catch (err) {
-      alert("Invalid email or password");
+  
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const payload = {
+              ...formData,
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            };
+            const res = await axios.post("http://localhost:8080/api/auth/login", payload);
+            alert("Welcome " + res.data.name + " (" + res.data.role + ")");
+            localStorage.setItem("user", JSON.stringify(res.data));
+            navigate("/dashboard");
+          } catch (err) {
+            alert("Invalid email or password");
+          }
+        },
+        async (error) => {
+          // User denied location
+          try {
+            const res = await axios.post("http://localhost:8080/api/auth/login", formData);
+            alert("Welcome " + res.data.name + " (" + res.data.role + ")");
+            localStorage.setItem("user", JSON.stringify(res.data));
+            navigate("/dashboard");
+          } catch (err) {
+            alert("Invalid email or password");
+          }
+        }
+      );
+    } else {
+      try {
+        const res = await axios.post("http://localhost:8080/api/auth/login", formData);
+        alert("Welcome " + res.data.name + " (" + res.data.role + ")");
+        localStorage.setItem("user", JSON.stringify(res.data));
+        navigate("/dashboard");
+      } catch (err) {
+        alert("Invalid email or password");
+      }
     }
   };
+  
 
   const handleGoogleLoginSuccess = async (response) => {
     try {

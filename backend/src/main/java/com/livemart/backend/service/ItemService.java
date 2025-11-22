@@ -25,6 +25,11 @@ public class ItemService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+    public Item getItemById(Long itemId) {
+        return itemRepository.findById(itemId)
+            .orElseThrow(() -> new RuntimeException("Item not found: " + itemId));
+    }
+    
 
     // Convert Item -> ItemDTO
     private ItemDTO convertToDTO(Item item) {

@@ -1,11 +1,10 @@
 package com.livemart.backend.repository;
 
-
-import org.springframework.data.jpa.repository.JpaRepository;
 import com.livemart.backend.model.UserLocation;
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
 
 public interface UserLocationRepository extends JpaRepository<UserLocation, Long> {
-    List<UserLocation> findByUserId(Long userId);
+    Optional<UserLocation> findByUserId(Long userId);
 }
-

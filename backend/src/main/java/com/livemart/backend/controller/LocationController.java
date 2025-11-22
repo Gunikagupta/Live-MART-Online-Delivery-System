@@ -23,8 +23,10 @@ public class LocationController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<UserLocation>> getUserLocations(@PathVariable Long userId) {
-        List<UserLocation> locations = locationRepository.findByUserId(userId);
-        return ResponseEntity.ok(locations);
-    }
+public ResponseEntity<UserLocation> getUserLocation(@PathVariable Long userId) {
+    return locationRepository.findByUserId(userId)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+}
+
 }
