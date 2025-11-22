@@ -72,13 +72,13 @@ export default function OrderDetails() {
     const ics = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
-      "PRODID:-//BazzarBari//EN",
+      "PRODID:-//BazaarBari//EN",
       "BEGIN:VEVENT",
       `UID:order-${order.id}@livemart`,
       `DTSTAMP:${formatICS(new Date())}`,
       `DTSTART:${formatICS(start)}`,
       `DTEND:${formatICS(end)}`,
-      `SUMMARY:BazzarBari - Order #${order.id}`,
+      `SUMMARY:BazaarBari - Order #${order.id}`,
       `DESCRIPTION:Delivery for order ${order.id}`,
       "END:VEVENT",
       "END:VCALENDAR",
@@ -165,7 +165,7 @@ export default function OrderDetails() {
           <a
             className="px-4 py-2 border rounded"
             href={`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-              `BazzarBari Order #${order.id}`
+              `BazaarBari Order #${order.id}`
             )}&dates=${encodeURIComponent(
               new Date(order.scheduledAt || order.createdAt).toISOString()
             )}/${encodeURIComponent(new Date(order.scheduledAt || order.createdAt).toISOString())}`}

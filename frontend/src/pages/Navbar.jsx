@@ -24,14 +24,18 @@ export default function Navbar() {
   return (
     <header className="w-full bg-gradient-to-r from-rose-900 via-red-700 to-pink-500 text-white shadow-md sticky top-0 z-50">
       <div className="max-w-[1500px] mx-auto px-10 py-4 grid grid-cols-3 items-center">
-
-        {/* LEFT — LiveMart */}
-        <div
-          className="text-3xl font-extrabold cursor-pointer tracking-tight"
-          onClick={() => navigate("/dashboard")}
-        >
-          BazzarBari
-        </div>
+{/* LEFT — BazarBari Logo + Text */}
+<div
+  className="flex items-center gap-3 text-3xl font-extrabold cursor-pointer tracking-tight select-none"
+  onClick={() => navigate("/dashboard")}
+>
+  <img
+    src="/bazarbari.jpg"   // <-- Correct file extension
+    alt="BazarBari Logo"
+    className="w-10 h-10 object-contain"
+  />
+  <span>BazaarBari</span>
+</div>
 
         {/* CENTER — Page Title */}
         <div className="flex justify-center">

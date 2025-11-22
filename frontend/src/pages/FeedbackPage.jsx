@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import ItemDetail from "../components/ItemDetail";
+import { useParams } from "react-router-dom";
 
-function FeedbackPage({ itemId }) {
+function FeedbackPage() {
+  const { orderId } = useParams(); // ✅ FIXED
+
   // Hardcoded dummy feedback list
   const [feedbackList, setFeedbackList] = useState([
     {
@@ -30,7 +32,6 @@ function FeedbackPage({ itemId }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
-  // Simulate feedback submission: add new feedback to list
   const handleSubmit = () => {
     if (!comment.trim()) {
       alert("Please enter a comment");
@@ -39,7 +40,7 @@ function FeedbackPage({ itemId }) {
 
     const newFeedback = {
       id: feedbackList.length + 1,
-      user: { name: "You" }, // Hardcoded username
+      user: { name: "You" },
       rating,
       comment,
       timestamp: new Date().toISOString(),
@@ -54,7 +55,7 @@ function FeedbackPage({ itemId }) {
   return (
     <div className="max-w-4xl mx-auto py-16 px-6 bg-gray-50 min-h-screen font-sans">
       <h1 className="text-4xl font-extrabold mb-8 text-center bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 bg-clip-text text-transparent">
-        Feedback
+        Feedback for Order #{orderId}
       </h1>
 
       {/* Feedback Submission Form */}
@@ -96,7 +97,9 @@ function FeedbackPage({ itemId }) {
         <h2 className="text-3xl font-extrabold mb-6">Existing Feedback</h2>
 
         {feedbackList.length === 0 ? (
-          <p className="text-center text-gray-500">No feedback yet. Be the first to review!</p>
+          <p className="text-center text-gray-500">
+            No feedback yet. Be the first to review!
+          </p>
         ) : (
           feedbackList.map((fb) => (
             <div

@@ -150,12 +150,15 @@ function OrderCard({ order, feedbackList, onClick, onReorder, onCancel, onAddFee
       </div>
       {/* Buttons */}
       <div className="flex mt-5 gap-4">
+
+        {/* Reorder */}
         <button
           onClick={() => onReorder(order)}
           className="flex-1 bg-gradient-to-r from-pink-900 via-red-700 to-pink-400 text-white font-semibold py-2 rounded-xl hover:opacity-90 transition"
         >
           Reorder
         </button>
+
         {canCancel && (
           <button
             onClick={() => onCancel(order.id)}
@@ -178,7 +181,7 @@ export default function OrdersPage() {
   const [selectedItem, setSelectedItem] = useState(null);
 
   const navigate = useNavigate();
-  const { addToCart, setCart } = useCart();
+  const { setCart } = useCart();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
@@ -193,62 +196,47 @@ export default function OrdersPage() {
       .catch(() => setFeedback([]));
   }, []);
 
-  // Reorder items from a previous order
-  const handleReorder = (order) => {
-    order.items.forEach((item) => {
-      addToCart(
-        {
-          id: item.id,
-          name: item.name,
-          price: item.price,
-        },
-        item.qty
-      );
-    });
-    setPopupMessage("🛒 Items added to cart again!");
-  };
+  // ---------------- REORDER ----------------
+  const { addToCart } = useCart();   // ✔ use addToCart, NOT setCart
 
-  // Cancel an order
-  const handleCancel = async (orderId) => {
-    try {
-      await api.put(`/api/orders/cancel/${orderId}`);
-      alert("Order cancelled successfully! Cancellation email has been sent.");
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === orderId ? { ...o, status: "CANCELLED" } : o
-        )
-      );
-    } catch (err) {
-      console.error(err);
-      alert("Failed to cancel order.");
-    }
-  };
+const handleReorder = (order) => {
+  order.items.forEach((item) => {
+    addToCart(
+      {
+        id: item.id,
+        name: item.name,
+        price: item.price,
+      },
+      item.qty // quantity from old order
+    );
+  });
 
-  // Trigger feedback popup
-  const handleAddFeedback = (order, item) => {
-    setSelectedOrder(order);
-    setSelectedItem(item);
-    setShowFeedbackForm(true);
-  };
+  setPopupMessage("🛒 Items added to cart again!");
+};
 
-  // Feedback submission logic
-  const handleSubmitFeedback = async ({ rating, comment }) => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      await api.post("/api/feedback", {
-        itemId: selectedItem.id,
-        userId: user.id,
-        rating,
-        comment,
-      });
-      setPopupMessage("Thank you for your feedback!");
-      // Refresh feedback list after submitting
-      api.get(`/api/feedback/user/${user.id}`).then((res) => setFeedback(res.data));
-    } catch (err) {
-      setPopupMessage("Feedback submission failed.");
-    }
-    setShowFeedbackForm(false);
-  };
+
+  // ---------------- CANCEL ORDER ----------------
+ const handleCancel = async (orderId) => {
+  try {
+    // 1️⃣ Cancel the order in backend
+    await api.put(`/api/orders/cancel/${orderId}`);
+
+    // 2️⃣ Show success popup
+    alert("Order cancelled successfully! Cancellation email has been sent.");
+
+    // 3️⃣ Reload orders
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === orderId ? { ...o, status: "CANCELLED" } : o
+      )
+    );
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to cancel order.");
+  }
+};
+
 
   return (
     <div className="px-8 py-12 min-h-screen bg-gray-50">
@@ -264,7 +252,7 @@ export default function OrdersPage() {
               key={order.id}
               order={order}
               feedbackList={feedback}
-              onClick={(id) => navigate(`/orders/${id}`)}
+              onClick={(id) => navigate(`/orders/${id}/feedback`)}
               onReorder={handleReorder}
               onCancel={handleCancel}
               onAddFeedback={handleAddFeedback}

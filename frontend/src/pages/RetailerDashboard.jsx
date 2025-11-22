@@ -114,7 +114,7 @@ export default function RetailerDashboard() {
       <nav className="bg-white shadow sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-pink-900 via-red-700 to-pink-500">
-            BazzarBari <span className="text-sm text-gray-600">(Retailer)</span>
+            BazaarBari <span className="text-sm text-gray-600">(Retailer)</span>
           </div>
           <div className="flex space-x-6">
             <a href="#inventory" className="hover:text-pink-600">Inventory</a>

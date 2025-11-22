@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 // Pages & Components
@@ -21,16 +21,11 @@ import PlaceOrderForm from "./components/PlaceOrderForm";
 import OrderHistory from "./components/OrderHistory";
 import FeedbackPage from "./pages/FeedbackPage";
 import WholesalerDashboard from "./pages/WholesalerDashboard";
-import RetailerDashboard from "./pages/RetailerDashboard";  // ⭐ ADDED
+import RetailerDashboard from "./pages/RetailerDashboard";
 
 // ⭐ PAYPAL CLIENT ID
 const PAYPAL_CLIENT_ID =
   "AUXHndhp9RD1py5GqyfuXCpXlv33V4Q5V65DoVsePrnyCddU1rBs6H-SNMLPItTYjXB0NH3tkf-cUEna";
-
-function FeedbackPageWrapper() {
-  const { itemId } = useParams();
-  return <FeedbackPage itemId={itemId} />;
-}
 
 function App() {
   return (
@@ -53,7 +48,7 @@ function App() {
           <Route path="/wholeseller" element={<WholesalerDashboard />} />
 
           {/* Retailer */}
-          <Route path="/retailer-dashboard" element={<RetailerDashboard />} />  {/* ⭐ ADDED */}
+          <Route path="/retailer-dashboard" element={<RetailerDashboard />} />
 
           {/* Customer Dashboard */}
           <Route path="/dashboard" element={<CategoryGrid />} />
@@ -85,8 +80,8 @@ function App() {
           <Route path="/orders/create" element={<PlaceOrderForm />} />
           <Route path="/orders/history" element={<OrderHistory />} />
 
-          {/* Feedback */}
-          <Route path="/feedback/:itemId" element={<FeedbackPageWrapper />} />
+          {/* ⭐ FEEDBACK FOR ORDERS — FIXED ROUTE */}
+          <Route path="/orders/:orderId/feedback" element={<FeedbackPage />} />
 
         </Routes>
       </Router>

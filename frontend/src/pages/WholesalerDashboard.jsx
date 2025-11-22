@@ -78,12 +78,12 @@ export default function WholesalerDashboard() {
             {/* Using uploaded local image file path as logo */}
             <img
               src="/mnt/data/1edb0fcf-b5d5-491d-a196-c98240c7a088.png"
-              alt="BazzarBari logo"
+              alt="BazaarBari logo"
               className="w-12 h-12 object-contain rounded-md"
             />
             <div>
               <div className="text-lg font-extrabold bg-clip-text text-transparent bg-gradient-to-br from-pink-900 via-red-700 to-pink-500">
-                BazzarBari
+                BazaarBari
               </div>
               <div className="text-xs text-gray-500">Wholesaler</div>
             </div>
