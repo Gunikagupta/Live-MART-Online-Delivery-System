@@ -10,7 +10,7 @@ import com.livemart.backend.repository.OrderRepository;
 import com.livemart.backend.repository.UserRepository;
 import com.livemart.backend.util.CalendarInviteUtils;
 
-import org.springframework.transaction.annotation.Transactional;   // <-- FIXED
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,22 +51,17 @@ public class OrderService {
 
         // 3. Process each order item
         for (OrderItem oi : order.getOrderItems()) {
-
             // Load item from DB
             Item item = itemRepository.findById(oi.getItem().getId())
                     .orElseThrow(() -> new RuntimeException("Item not found"));
-
-            // Defensive: backend will NOT accept null stock anymore
             if (item.getStock() == null) {
                 throw new RuntimeException("Item stock is NULL for item: " + item.getName());
             }
-
             // Check & update stock
             int newStock = item.getStock() - oi.getQuantity();
             if (newStock < 0) {
                 throw new RuntimeException("Insufficient stock for item: " + item.getName());
             }
-
             item.setStock(newStock);
             itemRepository.save(item);
 
@@ -88,7 +83,6 @@ public class OrderService {
                     order.getOfflineOrderDate(),
                     order.getOfflineOrderDate().plusHours(1)
             );
-
             notificationService.sendEmailWithCalendarInvite(
                     user.getEmail(),
                     "Your Offline Order Pickup Reminder",
@@ -96,14 +90,9 @@ public class OrderService {
                     ics
             );
         } else {
-            notificationService.sendEmailWithCalendarInvite(
-                    user.getEmail(),
-                    "Order Placed Successfully",
-                    "Thank you for your order! Your order ID is " + saved.getId(),
-                    null
-            );
+            // Customized HTML email for delivery or collect
+            notificationService.sendCustomOrderEmail(saved);
         }
-
         return saved;
     }
 
@@ -138,27 +127,25 @@ public class OrderService {
                 ics
         );
     }
+
     public OrderResponseDTO convertToDTO(Order order) {
-    OrderResponseDTO dto = new OrderResponseDTO();
-
-    dto.id = order.getId();
-    dto.createdAt = order.getOrderDate();
-    dto.status = order.getStatus();
-    dto.deliveryAddress = order.getDeliveryAddress();
-    dto.offlineOrder = order.isOfflineOrder();
-    dto.offlineOrderDate = order.getOfflineOrderDate();
-
-    dto.items = order.getOrderItems().stream().map(oi -> {
-        OrderResponseDTO.ItemDTO i = new OrderResponseDTO.ItemDTO();
-        i.itemId = oi.getItem().getId();
-        i.name = oi.getItem().getName();
-        i.qty = oi.getQuantity();
-        i.price = oi.getPrice();
-        return i;
-    }).toList();
-
-    return dto;
-}
+        OrderResponseDTO dto = new OrderResponseDTO();
+        dto.id = order.getId();
+        dto.createdAt = order.getOrderDate();
+        dto.status = order.getStatus();
+        dto.deliveryAddress = order.getDeliveryAddress();
+        dto.offlineOrder = order.isOfflineOrder();
+        dto.offlineOrderDate = order.getOfflineOrderDate();
+        dto.items = order.getOrderItems().stream().map(oi -> {
+            OrderResponseDTO.ItemDTO i = new OrderResponseDTO.ItemDTO();
+            i.itemId = oi.getItem().getId();
+            i.name = oi.getItem().getName();
+            i.qty = oi.getQuantity();
+            i.price = oi.getPrice();
+            return i;
+        }).toList();
+        return dto;
+    }
 
     public Optional<Order> getOrderById(Long orderId) {
         return orderRepository.findById(orderId);
